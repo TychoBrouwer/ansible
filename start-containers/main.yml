@@ -1,0 +1,19 @@
+---
+- name: Start Proxmox containers
+  hosts: proxmox
+
+  tasks:
+    - name: Ensure containers are started
+      community.general.proxmox:
+        vmid: {{ container_id }}
+        api_user: root@pam
+        api_password: 1q2w3e
+        api_host: node1
+        state: started
+      loop:
+        - 101
+        - 102
+        - 103
+        - 104
+        - 110
+        - 111

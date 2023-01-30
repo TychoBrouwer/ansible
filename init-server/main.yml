@@ -1,0 +1,48 @@
+---
+- name: Initiate server
+
+  handlers:
+    - name: restart ssh
+      service: name=sshd state=restarted
+
+  pre_tasks:
+    - name: Update apt cache if needed
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+    - name: update apt packages
+      apt:
+        name: ¨*¨
+        state: latest
+
+  tasks:
+    - name: Disable SSH password authentication
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: "PasswordAuthentication"
+        line: "PasswordAuthentication no"
+        state: present
+        validate: 'sshd -t -f %s'
+      notify: restart ssh
+
+    - name: Ensure NTP is installed
+      apt:
+        name: ntp
+        state: present
+
+    - name: Ensure NTP is running
+      service:
+        name: ntpd
+        state: started
+        enabled: true
+
+    - name: Ensure git is installed
+      apt:
+        name: git
+        state: present
+
+    - name: Set git config name
+      command: git config --global user.name "Tycho Brouwer"
+
+    - name: Set git config email
+      command: git config --global user.email "tychobrouwer33@gmail.com"

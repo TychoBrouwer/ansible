@@ -1,0 +1,61 @@
+---
+- name: Install Pi-hole
+  hosts: pi_hole
+
+  vars_files:
+    - vars.yml
+
+  handlers:
+    - name: restart unbound
+      service: name=unbound state=restarted
+    - name: pihole enable
+      command: pihole enable && pihole restartdns
+
+  pre_tasks:
+    - name: Update apt cache if needed
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+    - name: update apt packages
+      apt:
+        name: ¨*¨
+        state: latest
+
+  tasks:
+    - name: Ensure Curl is installed
+      apt:
+        name:
+          - curl
+          - unbound
+        state: present
+
+    - name: Copy setup vars file to remote
+      copy:
+        src: ./setupVars.conf
+        dest: /etc/pihole/setupVars.conf
+
+    - name: Copy unbound config file to remote
+      copy:
+        src: ./unbound.conf
+        dest: /etc/unbound/unbound.conf.d/pi-hole.conf
+      notify: restart unbound
+
+    - name: Check if root hints file exists
+      stat:
+        path: /var/lib/unbound/root.hints
+      register: root_hints_file_data
+      changed_when: not root_hints_file_data.stat.exists or root_hints_file_data.mtime > {{ root_hints_upate_time }}
+
+    - name: Get unbound root hints
+      command: curl -L https://www.internic.net/domain/named.root >/var/lib/unbound/root.hints
+      when: not root_hints_file_data.stat.exists or root_hints_file_data.mtime > {{ root_hints_upate_time }}
+
+    - name: Run Pi-hole to ensure it is installed otherwise install
+      command: pihole
+      register: pihole_installed
+      changed_when: pihole_installed.rc != 0
+
+    - name: Install Pi-hole
+      command: curl -L https://install.pi-hole.net | bash /dev/stdin --unattended
+      when: pihole_installed.rc != 0
+      notify: pihole enable

@@ -1,0 +1,51 @@
+---
+- name: Install factorio server
+  hosts: factorio
+
+  pre_tasks:
+    - name: Update apt cache if needed
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+    - name: update apt packages
+      apt:
+        name: ¨*¨
+        state: latest
+
+  tasks:
+    - name: Ensure factorio group exists
+      group:
+        name: "{{ factorio_group }}"
+        state: present
+
+    - name: Ensure factorio user exists
+      user:
+        name: "{{ factorio_name }}"
+        group: "{{ factorio_group }}"
+        password: "{{ factorio_password | password_hash('sha512') }}"
+        state: present
+
+    - name: Get and unarchive factorio headless server files
+      unarchive:
+        src: https://www.factorio.com/get-download/1.1.74/headless/linux64
+        dest: /opt/factorio
+        owner: "{{ factorio_name }}"
+        group: "{{ factorio_group }}"
+        remote_src: true
+
+    - name: Copy factorio save file to remote
+      copy:
+        src: ./Uitwijkse_Factory.zip
+        dest: /opt/factorio/Uitwijkse_Factory.zip
+
+    - name: Copy factorio service file to remote
+      copy:
+        src: ./factorio.service
+        dest: /etc/systemd/system/factorio.service
+        mode: '0664'
+
+    - name: Enable and start factorio systemd service
+      systemd:
+        name: factorio.service
+        state: started
+        enabled: true

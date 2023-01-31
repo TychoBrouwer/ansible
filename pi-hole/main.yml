@@ -25,7 +25,6 @@
     - name: Ensure Curl is installed
       apt:
         name:
-          - curl
           - unbound
         state: present
 
@@ -40,22 +39,25 @@
         dest: /etc/unbound/unbound.conf.d/pi-hole.conf
       notify: restart unbound
 
-    - name: Check if root hints file exists
-      stat:
-        path: /var/lib/unbound/root.hints
-      register: root_hints_file_data
-      changed_when: not root_hints_file_data.stat.exists or root_hints_file_data.mtime > {{ root_hints_upate_time }}
+    - name: Ensure root hints file for unbound exist
+      get_url:
+        url: https://www.internic.net/domain/named.root
+        dest: /var/lib/unbound/root.hints
+        force: true
 
-    - name: Get unbound root hints
-      command: curl -L https://www.internic.net/domain/named.root >/var/lib/unbound/root.hints
-      when: not root_hints_file_data.stat.exists or root_hints_file_data.mtime > {{ root_hints_upate_time }}
+    - name: Get Pi-hole install script with exectution
+      get_url:
+        url: https://install.pi-hole.net
+        dest: /src/pihole/install.sh
+        force: true
+        mode: "0755"
 
     - name: Run Pi-hole to ensure it is installed otherwise install
       command: pihole
       register: pihole_installed
       changed_when: pihole_installed.rc != 0
 
-    - name: Install Pi-hole
-      command: curl -L https://install.pi-hole.net | bash /dev/stdin --unattended
+    - name: Run Pi-hole install script
+      command: /src/pihole/install.sh --unattended
       when: pihole_installed.rc != 0
       notify: pihole enable

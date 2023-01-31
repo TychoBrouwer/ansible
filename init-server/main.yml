@@ -25,9 +25,18 @@
         validate: 'sshd -t -f %s'
       notify: restart ssh
 
-    - name: Ensure NTP is installed
+    - name: Set authorized ssh keys
+      copy:
+        src: ./authorized_keys
+        dest: /root/.ssh/authorized_keys
+
+    - name: Ensure NTP, Git, Python3, and pip are installed
       apt:
-        name: ntp
+        name: 
+          - ntp
+          - git
+          - python3
+          - python3-pip
         state: present
 
     - name: Ensure NTP is running
@@ -36,13 +45,20 @@
         state: started
         enabled: true
 
-    - name: Ensure git is installed
-      apt:
-        name: git
-        state: present
+    - name: Set git system name
+      git_config:
+        name: user.name
+        scope: system
+        value: "Tycho Brouwer"
 
-    - name: Set git config name
-      command: git config --global user.name "Tycho Brouwer"
+    - name: Set git system email
+      git_config:
+        name: user.email
+        scope: system
+        value: "tychobrouwer33@gmail.com"
 
-    - name: Set git config email
-      command: git config --global user.email "tychobrouwer33@gmail.com"
+    - name: Set git system default branch
+      git_config:
+        name: init.defaultBranch
+        scope: system
+        value: "main"

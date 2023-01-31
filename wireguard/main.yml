@@ -1,0 +1,87 @@
+---
+- name: Install Wireguard
+  hosts: wireguard
+
+  pre_tasks:
+    - name: Update apt cache if needed
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+    - name: update apt packages
+      apt:
+        name: ¨*¨
+        state: latest
+
+  tasks:
+    - name: Ensure wireguard, iptables, and gunicorn are installed
+      apt:
+        name:
+          - wireguard
+          - iptables
+          - gunicorn
+        state: present
+
+    - name: Ensure required Python packages are available
+      pip:
+        name:
+          - ifcfg
+          - flask
+          - flask_qrcode
+          - icmplib
+
+    - name: Copy wg0 config file to remote
+      copy:
+        src: ./wg0.conf
+        dest: /etc/wireguard/wg0.conf
+
+    - name: Enable wg0 wireguard systemd service
+      systemd:
+        name: wg-quick@wg0.service
+        state: started
+        enabled: true
+
+    - name: set permission of wireguard folder
+      file:
+        path: /etc/wireguard
+        mode: '0755'
+        state: directory
+        recursive: true
+
+    - name: git clone wireguard dashboard repository
+      git:
+        repo: https://github.com/donaldzou/WGDashboard.git
+        dest: /src/wg-dashboard
+        clone: true
+        update: true
+        depth: 1
+
+    - name: set wg deamon executable
+      file:
+        path: /src/wg-dashboard/src/wgd.sh
+        mode: u+x
+
+    - name: install wg dashboard
+      command: /src/wg-dashboard/src/wgd.sh install
+
+    - name: Copy wg dashboard service file to remote
+      copy:
+        src: ./wg-dashboard.service
+        dest: /etc/systemd/system/wg-dashboard.service
+        mode: '0664'
+
+    - name: Copy wg dashboard config file to remote
+      copy:
+        src: ./wg-dashboard.ini
+        dest: /src/wg-dashboard/src/wg-dashboard.ini
+
+    - name: Enable and start wg dashboard systemd service
+      systemd:
+        name: wg-dashboard.service
+        state: started
+        enabled: true
+
+
+
+
+
+

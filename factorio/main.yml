@@ -1,32 +1,49 @@
 ---
 - name: Install factorio server
   hosts: factorio
+  gather_facts: false
+
+  vars_prompt:
+    - name: factorio_password
+      prompt: What is your factorio user password?
+      private: true
+
+    - name: factorio_password_repeat
+      prompt: Repeat your factorio user password?
+      private: true
 
   pre_tasks:
+    - name: Make sure passwords are the same
+      ansible.builtin.fail:
+        msg: Passwords do not match
+      when: not factorio_password == factorio_password_repeat
+      run_once: true
+
     - name: Update apt cache if needed
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
-    - name: update apt packages
-      apt:
+
+    - name: Update apt packages
+      ansible.builtin.apt:
         name: ¨*¨
         state: latest
 
   tasks:
     - name: Ensure factorio group exists
-      group:
+      ansible.builtin.group:
         name: "{{ factorio_group }}"
         state: present
 
     - name: Ensure factorio user exists
-      user:
+      ansible.builtin.user:
         name: "{{ factorio_name }}"
         group: "{{ factorio_group }}"
         password: "{{ factorio_password | password_hash('sha512') }}"
         state: present
 
     - name: Get and unarchive factorio headless server files
-      unarchive:
+      ansible.builtin.unarchive:
         src: https://www.factorio.com/get-download/1.1.74/headless/linux64
         dest: /opt/factorio
         owner: "{{ factorio_name }}"
@@ -34,18 +51,21 @@
         remote_src: true
 
     - name: Copy factorio save file to remote
-      copy:
+      ansible.builtin.copy:
         src: ./Uitwijkse_Factory.zip
         dest: /opt/factorio/Uitwijkse_Factory.zip
+        owner: "{{ factorio_name }}"
+        group: "{{ factorio_group }}"
+        mode: '0664'
 
     - name: Copy factorio service file to remote
-      copy:
+      ansible.builtin.copy:
         src: ./factorio.service
         dest: /etc/systemd/system/factorio.service
         mode: '0664'
 
     - name: Enable and start factorio systemd service
-      systemd:
+      ansible.builtin.systemd:
         name: factorio.service
         state: started
         enabled: true

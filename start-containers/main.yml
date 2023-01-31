@@ -5,7 +5,7 @@
   tasks:
     - name: Ensure containers are started
       community.general.proxmox:
-        vmid: {{ container_id }}
+        vmid: "{{ container_id }}"
         api_user: root@pam
         api_password: 1q2w3e
         api_host: node1

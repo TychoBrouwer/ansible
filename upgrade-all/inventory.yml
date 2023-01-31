@@ -1,8 +1,9 @@
+---
 all:
   hosts:
     proxmox:
       ansible_host: 192.168.178.100
-  children: 
+  children:
     infrastructure:
       hosts:
         pi_hole:
@@ -21,4 +22,3 @@ all:
           ansible_host: 192.168.178.111
     projects:
       hosts:
-        #projects

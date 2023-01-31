@@ -4,17 +4,17 @@
 
   pre_tasks:
     - name: Update apt cache if needed
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
-    - name: update apt packages
-      apt:
+    - name: Update apt packages
+      ansible.builtin.apt:
         name: ¨*¨
         state: latest
 
   tasks:
     - name: Ensure wireguard, iptables, and gunicorn are installed
-      apt:
+      ansible.builtin.apt:
         name:
           - wireguard
           - iptables
@@ -22,7 +22,7 @@
         state: present
 
     - name: Ensure required Python packages are available
-      pip:
+      ansible.builtin.pip:
         name:
           - ifcfg
           - flask
@@ -30,52 +30,55 @@
           - icmplib
 
     - name: Copy wg0 config file to remote
-      copy:
+      ansible.builtin.copy:
         src: ./wg0.conf
         dest: /etc/wireguard/wg0.conf
+        mode: '0644'
 
     - name: Enable wg0 wireguard systemd service
-      systemd:
+      ansible.builtin.systemd:
         name: wg-quick@wg0.service
         state: started
         enabled: true
 
-    - name: set permission of wireguard folder
-      file:
+    - name: Set permission of wireguard folder
+      ansible.builtin.file:
         path: /etc/wireguard
         mode: '0755'
         state: directory
-        recursive: true
+        recurse: true
 
-    - name: git clone wireguard dashboard repository
-      git:
+    - name: Git clone wireguard dashboard repository
+      ansible.builtin.git:
         repo: https://github.com/donaldzou/WGDashboard.git
         dest: /src/wg-dashboard
         clone: true
         update: true
         depth: 1
 
-    - name: set wg deamon executable
-      file:
+    - name: Set wg deamon executable
+      ansible.builtin.file:
         path: /src/wg-dashboard/src/wgd.sh
         mode: u+x
 
-    - name: install wg dashboard
-      command: /src/wg-dashboard/src/wgd.sh install
+    - name: Install wg dashboard
+      ansible.builtin.command: /src/wg-dashboard/src/wgd.sh install
+      changed_when: false
 
     - name: Copy wg dashboard service file to remote
-      copy:
+      ansible.builtin.copy:
         src: ./wg-dashboard.service
         dest: /etc/systemd/system/wg-dashboard.service
         mode: '0664'
 
     - name: Copy wg dashboard config file to remote
-      copy:
+      ansible.builtin.copy:
         src: ./wg-dashboard.ini
         dest: /src/wg-dashboard/src/wg-dashboard.ini
+        mode: '0644'
 
     - name: Enable and start wg dashboard systemd service
-      systemd:
+      ansible.builtin.systemd:
         name: wg-dashboard.service
         state: started
         enabled: true

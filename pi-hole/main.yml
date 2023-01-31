@@ -3,58 +3,65 @@
   hosts: pi_hole
 
   handlers:
-    - name: restart unbound
-      service: name=unbound state=restarted
-    - name: pihole enable
-      command: pihole enable && pihole restartdns
+    - name: Restart unbound
+      ansible.builtin.service:
+        name: unbound
+        state: restarted
+
+    - name: Pihole enable
+      ansible.builtin.command: pihole enable && pihole restartdns
 
   pre_tasks:
     - name: Update apt cache if needed
-      apt:
+      ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
-    - name: update apt packages
-      apt:
+
+    - name: Update apt packages
+      ansible.builtin.apt:
         name: ¨*¨
         state: latest
 
   tasks:
     - name: Ensure Curl is installed
-      apt:
+      ansible.builtin.apt:
         name:
           - unbound
         state: present
 
     - name: Copy setup vars file to remote
-      copy:
+      ansible.builtin.copy:
         src: ./setupVars.conf
         dest: /etc/pihole/setupVars.conf
+        mode: "0644"
 
     - name: Copy unbound config file to remote
-      copy:
+      ansible.builtin.copy:
         src: ./unbound.conf
         dest: /etc/unbound/unbound.conf.d/pi-hole.conf
-      notify: restart unbound
+        mode: "0644"
+      notify: Restart unbound
 
     - name: Ensure root hints file for unbound exist
-      get_url:
+      ansible.builtin.get_url:
         url: https://www.internic.net/domain/named.root
         dest: /var/lib/unbound/root.hints
         force: true
+        mode: "0644"
 
     - name: Get Pi-hole install script with exectution
-      get_url:
+      ansible.builtin.get_url:
         url: https://install.pi-hole.net
         dest: /src/pihole/install.sh
         force: true
         mode: "0755"
 
     - name: Run Pi-hole to ensure it is installed otherwise install
-      command: pihole
+      ansible.builtin.command: pihole
       register: pihole_installed
       changed_when: pihole_installed.rc != 0
 
     - name: Run Pi-hole install script
-      command: /src/pihole/install.sh --unattended
+      ansible.builtin.command: /src/pihole/install.sh --unattended
       when: pihole_installed.rc != 0
-      notify: pihole enable
+      notify: Pihole enable

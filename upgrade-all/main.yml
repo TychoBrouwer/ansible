@@ -3,12 +3,13 @@
   hosts: all
 
   tasks:
-    - name: Update apt cache if needed
+    - name: Update cache if needed (Debian)
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
 
-    - name: Update apt packages
-      ansible.builtin.apt:
-        name: ¨*¨
+    - name: Update packages
+      ansible.builtin.package:
+        name: "*"
         state: latest

@@ -1,3 +1,5 @@
 ---
-factorio_name: factorio
-factorio_group: factorio
+user_name: factorio
+group_name: factorio
+factorio_download_url: https://www.factorio.com/get-download/1.1.74/headless/linux64
+factorio_install_location: /opt

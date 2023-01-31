@@ -2,66 +2,81 @@
 - name: Initiate server
   hosts: all
 
+  vars_files:
+    - vars.yml
+
   handlers:
     - name: Restart ssh
-      ansible.builtin.service:
-        name: sshd
-        state: restarted
+      ansible.builtin.debug:
+        msg: disabled systemd when using wsl
+      # ansible.builtin.service:
+      #   name: sshd
+      #   state: restarted
 
   pre_tasks:
-    - name: Update apt cache if needed
+    - name: Update cache if needed (Debian)
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
-    - name: Update apt packages
-      ansible.builtin.apt:
-        name: ¨*¨
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure packages are updated
+      ansible.builtin.package:
+        name: "*"
         state: latest
 
   tasks:
-    - name: Disable SSH password authentication
-      ansible.builtin.lineinfile:
-        dest: /etc/ssh/sshd_config
-        regexp: "PasswordAuthentication"
-        line: "PasswordAuthentication no"
-        state: present
-        validate: 'sshd -t -f %s'
-      notify: Restart ssh
-
-    - name: Set authorized ssh keys
-      ansible.builtin.copy:
-        src: ./authorized_keys
-        dest: /root/.ssh/authorized_keys
-        mode: "0644"
-
-    - name: Ensure NTP, Git, Python3, and pip are installed
-      ansible.builtin.apt:
+    - name: Ensure default packages are installed
+      ansible.builtin.package:
         name:
-          - ntp
           - git
           - python3
           - python3-pip
+          - openssh-server
         state: present
 
-    - name: Ensure NTP is running
-      ansible.builtin.service:
-        name: ntpd
-        state: started
-        enabled: true
+    - name: Ensure SSH password authentication is disabled
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+        # validate: 'sshd -t -f %s'
+      with_items:
+        - regexp: "^PasswordAuthentication"
+          line: "PasswordAuthentication no"
+      notify: Restart ssh
 
-    - name: Set git system name
+    - name: Ensure .ssh folder is present
+      ansible.builtin.file:
+        path: "{{ ssh_key_location }}"
+        state: directory
+        mode: "0700"
+
+    - name: Ensure OpenSSH keypair with the default values exists (4096 bits, rsa)
+      community.crypto.openssh_keypair:
+        path: "{{ ssh_key_location }}"/id_rsa
+        regenerate: never
+
+    - name: Ensure authorized ssh keys are set
+      ansible.builtin.copy:
+        src: ./authorized_keys
+        dest: "{{ ssh_key_location }}"/authorized_keys
+        mode: "0600"
+
+    - name: Ensure git system name is set
       community.general.git_config:
         name: user.name
         scope: system
-        value: "Tycho Brouwer"
+        value: "{{ github_name }}"
 
-    - name: Set git system email
+    - name: Ensure git system email is set
       community.general.git_config:
         name: user.email
         scope: system
-        value: "tychobrouwer33@gmail.com"
+        value: "{{ github_email }}"
 
-    - name: Set git system default branch
+    - name: Ensure git system default branch is set
       community.general.git_config:
         name: init.defaultBranch
         scope: system

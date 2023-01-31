@@ -1,38 +1,26 @@
 ---
 - name: Install SMB share
-  hosts: smb_share
+  hosts: all
 
   vars_files:
     - vars.yml
-
-  vars_prompt:
-    - name: sambauser_password
-      prompt: What is your samba user password?
-      private: true
-
-    - name: sambauser_password_repeat
-      prompt: Repeat your samba user password?
-      private: true
+    - vars-private.yml
 
   pre_tasks:
-    - name: Make sure passwords are the same
-      ansible.builtin.fail:
-        msg: Passwords do not match
-      when: not sambauser_password == sambauser_password_repeat
-      run_once: true
-
-    - name: Update apt cache if needed
+    - name: Update cache if needed (Debian)
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 3600
-    - name: Update apt packages
-      ansible.builtin.apt:
-        name: ¨*¨
+      when: ansible_os_family == "Debian"
+
+    - name: Update packages
+      ansible.builtin.package:
+        name: "*"
         state: latest
 
   tasks:
     - name: Ensure samba is installed
-      ansible.builtin.apt:
+      ansible.builtin.package:
         name:
           - samba
         state: present
@@ -46,7 +34,7 @@
       ansible.builtin.user:
         name: "{{ sambauser_name }}"
         group: "{{ sambauser_group }}"
-        password: "{{ sambauser_password | password_hash('sha512') }}"
+        password: "{{ sambauser_password | password_hash(hashtype='sha512', salt=sambauser_salt) }}"
         state: present
 
     - name: Ensure share folder exists
@@ -74,13 +62,15 @@
         mode: "0664"
 
     - name: Copy smb config to remote
-      ansible.builtin.file:
+      ansible.builtin.copy:
         src: ./smb.conf
         dest: /etc/samba/smb.conf
         mode: "0664"
 
     - name: Ensure smbd service is started and enabled
-      ansible.builtin.service:
-        name: smbd
-        state: started
-        enabled: true
+      ansible.builtin.debug:
+        msg: disabled systemd when using wsl
+      # ansible.builtin.service:
+      #   name: smbd
+      #   state: started
+      #   enabled: true

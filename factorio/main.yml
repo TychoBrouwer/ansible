@@ -5,6 +5,7 @@
 
   vars_files:
     - vars.yml
+    - vars-private.yml
 
   pre_tasks:
     - name: Update cache if needed (Debian)

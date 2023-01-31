@@ -9,7 +9,7 @@ all:
           ansible_host: 192.168.178.101
         wireguard:
           ansible_host: 192.168.178.102
-        docker:
+        portainer:
           ansible_host: 192.168.178.103
         smb_file_storage:
           ansible_host: 192.168.178.104

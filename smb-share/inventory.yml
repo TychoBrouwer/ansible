@@ -1,0 +1,4 @@
+all:
+  hosts:
+    smb_share:
+      ansible_host: 192.168.178.104

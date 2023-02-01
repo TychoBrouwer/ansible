@@ -1,0 +1,78 @@
+---
+- name: Install Portainer
+  hosts: all
+
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: Update cache if needed (Debian)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Update packages
+      ansible.builtin.package:
+        name: "*"
+        state: latest
+
+    - name: Ensure required packages are installed
+      ansible.builtin.package:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+
+  tasks:
+    - name: Ensure docker GPG signing key is installed (Debian)
+      ansible.builtin.apt_key:
+        url: "{{ docker_ce_deb_gpg }}"
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure docker repository is added (Debian)
+      ansible.builtin.apt_repository:
+        repo: "{{ docker_ce_deb_repo }}"
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure docker repository is added (RedHat)
+      ansible.builtin.yum_repository:
+        name: docker-ce
+        description: docker-ce repo
+        baseurl: "{{ docker_ce_centos_baseurl }}"
+        gpgkey: "{{ docker_ce_centos_gpg }}"
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure docker tools are installed
+      ansible.builtin.package:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Ensure docker service is started and enabled
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Ensure Portainer Docker volume is present
+      community.docker.docker_volume:
+        name: portainer_data
+
+    - name: Ensure Portainer Docker container is running
+      community.docker.docker_container:
+        name: portainer
+        image: portainer/portainer-ce
+        state: started
+        ports:
+          - "8000:8000"
+          - "9000:9000"
+        restart_policy: always
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - portainer_data:/data

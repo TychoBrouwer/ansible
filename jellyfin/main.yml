@@ -1,0 +1,141 @@
+---
+- name: Initiate server
+  hosts: all
+
+  vars_files:
+    - vars.yml
+    - vars-private.yml
+
+  pre_tasks:
+    - name: Update cache if needed (Debian)
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Update packages
+      ansible.builtin.package:
+        name: "*"
+        state: latest
+
+    - name: Ensure required packages are installed (Debian)
+      ansible.builtin.package:
+        name:
+          - xz-utils
+          - libicu
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure required packages are installed (RedHat)
+      ansible.builtin.package:
+        name:
+          - xz
+          - epel-release
+          - libicu
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure RPM Fusion is installed (RedHat)
+      ansible.builtin.yum:
+        name:
+          - https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
+          - https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm
+        disable_gpg_check: true
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure powertools repository is enabled (RedHat)
+      ansible.builtin.command: yum config-manager --set-enabled powertools
+      changed_when: false
+      when: ansible_os_family == "RedHat"
+
+  tasks:
+    - name: Ensure jellyfin group exists
+      ansible.builtin.group:
+        name: "{{ group_name }}"
+        state: present
+
+    - name: Ensure jellyfin user exists
+      ansible.builtin.user:
+        name: "{{ user_name }}"
+        group: "{{ group_name }}"
+        password: "{{ jellyfin_password | password_hash(hashtype='sha512', salt=jellyfin_salt) }}"
+        state: present
+
+    - name: Get and unarchive jellyfin headless server files if not present
+      ansible.builtin.unarchive:
+        src: "{{ jellyfin_download_folder }}/jellyfin_{{ jellyfin_version }}_amd64.tar.gz"
+        dest: "{{ install_location }}"
+        remote_src: true
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+
+    - name: Ensure symbolic link to jellyfin location is present
+      ansible.builtin.file:
+        src: "{{ install_location }}/jellyfin_{{ jellyfin_version }}"
+        dest: "{{ install_location }}/jellyfin"
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+        state: link
+
+    - name: Ensue jellyfin data folders are present
+      ansible.builtin.file:
+        path: "{{ install_location }}/jellyfin_{{ jellyfin_version }}/{{ item }}"
+        state: directory
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+        mode: "0644"
+      loop:
+        - data
+        - cache
+        - config
+        - log
+
+    - name: Ensure ffmpeg jellyfin is installed (Debian)
+      ansible.builtin.apt:
+        deb: "{{ ffmpeg_download_folder }}/{{ ffmpeg_version }}/jellyfin-ffmpeg5_{{ ffmpeg_version }}-bullseye_amd64.deb"
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure ffmpeg jellyfin is installed (RedHat)
+      ansible.builtin.package:
+        name:
+          - ffmpeg
+          - ffmpeg-devel
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure jellyfin start script is on remote
+      ansible.builtin.copy:
+        src: ./jellyfin.sh
+        dest: "{{ install_location }}/jellyfin/jellyfin.sh"
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+        mode: "0755"
+
+    - name: Ensure jellyfin service file is on remote (systemd)
+      ansible.builtin.copy:
+        src: ./jellyfin.service
+        dest: /etc/systemd/system/jellyfin.service
+        mode: "0664"
+      when: not ansible_distribution == "CentOS"
+
+    - name: Ensure jellyfin service is enabled and started (systemd)
+      ansible.builtin.systemd:
+        name: jellyfin
+        state: started
+        enabled: true
+      when: not ansible_distribution == "CentOS"
+
+    - name: Ensure jellyfin service file is on remote (sysvinit)
+      ansible.builtin.copy:
+        src: ./jellyfin
+        dest: /etc/init.d/jellyfin
+        mode: "0755"
+      when: ansible_distribution == "CentOS"
+
+    - name: Ensure jellyfin service is enabled and started (sysvinit)
+      ansible.builtin.sysvinit:
+        name: jellyfin
+        state: started
+        enabled: true
+      when: ansible_distribution == "CentOS"

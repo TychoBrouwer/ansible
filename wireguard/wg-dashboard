@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          factorio
+# Provides:          wg-dashboard
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
@@ -9,9 +9,9 @@
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
 
-dir="/opt/factorio/bin/x64"
-cmd="/opt/factorio/bin/x64/factorio --start-server /opt/factorio/Uitwijkse_Factory.zip --bind 192.168.178.111 > output.log"
-user="factorio"
+dir="/opt/wg-dashboard/src"
+cmd="/usr/bin/python3 /opt/wg-dashboard/src/dashboard.py"
+user="root"
 
 name=`basename $0`
 pid_file="/var/run/$name.pid"
@@ -33,7 +33,12 @@ case "$1" in
     else
         echo "Starting $name"
         cd "$dir"
-        $cmd >> "$stdout_log" 2>> "$stderr_log" &
+
+        if [ -z "$user" ]; then
+            sudo $cmd >> "$stdout_log" 2>> "$stderr_log" &
+        else
+            su - "$user" $cmd >> "$stdout_log" 2>> "$stderr_log" &
+        fi
 
         echo $! > "$pid_file"
         if ! is_running; then

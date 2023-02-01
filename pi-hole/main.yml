@@ -7,11 +7,9 @@
 
   handlers:
     - name: Restart unbound
-      ansible.builtin.debug:
-        msg: disabled systemd when using wsl
-      # ansible.builtin.service:
-      #   name: unbound
-      #   state: restarted
+      ansible.builtin.service:
+        name: unbound
+        state: restarted
 
     - name: Pihole enable
       ansible.builtin.command: pihole enable && pihole restartdns
@@ -87,6 +85,6 @@
 
       rescue:
         - name: No Pi-hole, run install script
-          ansible.builtin.command: "{{ pihole_install_script }}" --unattended
+          ansible.builtin.command: "{{ pihole_install_script }} --unattended"
           notify: Pihole enable
           failed_when: false

@@ -1,0 +1,8 @@
+---
+install_location: /opt
+jellyfin_download_folder: https://repo.jellyfin.org/releases/server/linux/stable/combined
+jellyfin_version: 10.8.9
+ffmpeg_download_folder: https://repo.jellyfin.org/releases/server/debian/versions/jellyfin-ffmpeg
+ffmpeg_version: 5.1.2-7
+user_name: jellyfin
+group_name: jellyfin

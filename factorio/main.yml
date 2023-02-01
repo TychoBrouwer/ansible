@@ -56,13 +56,13 @@
 
     - name: Ensure factorio script is executable
       ansible.builtin.file:
-        path: "{{ factorio_install_location }}"/factorio/bin/x64/factorio
+        path: "{{ factorio_install_location }}/factorio/bin/x64/factorio"
         mode: +x
 
     - name: Ensure factorio save file is on remote
       ansible.builtin.copy:
         src: ./Uitwijkse_Factory.zip
-        dest: "{{ factorio_install_location }}"/factorio/Uitwijkse_Factory.zip
+        dest: "{{ factorio_install_location }}/factorio/Uitwijkse_Factory.zip"
         owner: "{{ user_name }}"
         group: "{{ group_name }}"
         mode: '0664'

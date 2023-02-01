@@ -63,12 +63,10 @@
         mode: '0644'
 
     - name: Enable wg0 wireguard systemd service
-      ansible.builtin.debug:
-        msg: disabled systemd when using wsl
-      # ansible.builtin.systemd:
-      #   name: wg-quick@wg0.service
-      #   state: started
-      #   enabled: true
+      ansible.builtin.systemd:
+        name: wg-quick@wg0.service
+        state: started
+        enabled: true
 
     - name: Set permission of wireguard folder
       ansible.builtin.file:
@@ -87,29 +85,43 @@
 
     - name: Set wg deamon executable
       ansible.builtin.file:
-        path: "{{ dashboard_install_location }}"/src/wgd.sh
+        path: "{{ dashboard_install_location }}/src/wgd.sh"
         mode: u+x
 
     - name: Install wg dashboard
-      ansible.builtin.command: "{{ dashboard_install_location }}"/src/wgd.sh install
+      ansible.builtin.command: "{{ dashboard_install_location }}/src/wgd.sh install"
       changed_when: false
-
-    - name: Copy wg dashboard service file to remote
-      ansible.builtin.copy:
-        src: ./wg-dashboard.service
-        dest: /etc/systemd/system/wg-dashboard.service
-        mode: '0664'
 
     - name: Copy wg dashboard config file to remote
       ansible.builtin.copy:
         src: ./wg-dashboard.ini
-        dest: "{{ dashboard_install_location }}"/src/wg-dashboard.ini
+        dest: "{{ dashboard_install_location }}/src/wg-dashboard.ini"
         mode: '0644'
 
-    - name: Enable and start wg dashboard systemd service
-      ansible.builtin.debug:
-        msg: disabled systemd when using wsl
-      # ansible.builtin.systemd:
-      #   name: wg-dashboard.service
-      #   state: started
-      #   enabled: true
+    - name: Ensure wg dashboard service file is on remote (systemd)
+      ansible.builtin.copy:
+        src: ./wg-dashboard.service
+        dest: /etc/systemd/system/wg-dashboard.service
+        mode: '0664'
+      when: not ansible_distribution == "CentOS"
+
+    - name: Ensure wg dashboard service is enabled and started (systemd)
+      ansible.builtin.systemd:
+        name: wg-dashboard
+        state: started
+        enabled: true
+      when: not ansible_distribution == "CentOS"
+
+    - name: Ensure wg dashboard service file is on remote (sysvinit)
+      ansible.builtin.copy:
+        src: ./wg-dashboard
+        dest: /etc/init.d/wg-dashboard
+        mode: '0755'
+      when: ansible_distribution == "CentOS"
+
+    - name: Ensure wg dashboard service is enabled and started (sysvinit)
+      ansible.builtin.sysvinit:
+        name: wg-dashboard
+        state: started
+        enabled: true
+      when: ansible_distribution == "CentOS"

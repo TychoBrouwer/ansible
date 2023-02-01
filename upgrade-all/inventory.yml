@@ -17,8 +17,8 @@ all:
     entertainment:
       hosts:
         jellyfin:
-          ansible_host: 192.168.178.110
-        factorio:
           ansible_host: 192.168.178.111
+        factorio:
+          ansible_host: 192.168.178.112
     projects:
       hosts:

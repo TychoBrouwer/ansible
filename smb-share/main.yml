@@ -68,9 +68,7 @@
         mode: "0664"
 
     - name: Ensure smbd service is started and enabled
-      ansible.builtin.debug:
-        msg: disabled systemd when using wsl
-      # ansible.builtin.service:
-      #   name: smbd
-      #   state: started
-      #   enabled: true
+      ansible.builtin.service:
+        name: smbd
+        state: started
+        enabled: true

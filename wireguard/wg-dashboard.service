@@ -2,8 +2,8 @@
 After=network.service
 
 [Service]
-WorkingDirectory=/src/wg-dashboard/src
-ExecStart=/usr/bin/python3 /src/wg-dashboard/src/dashboard.py
+WorkingDirectory=/opt/wg-dashboard/src
+ExecStart=/usr/bin/python3 /opt/wg-dashboard/src/dashboard.py
 Restart=always
 
 

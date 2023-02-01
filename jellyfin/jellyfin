@@ -1,6 +1,6 @@
 #!/bin/sh
 ### BEGIN INIT INFO
-# Provides:          factorio
+# Provides:          jellyfin
 # Required-Start:    $remote_fs $syslog
 # Required-Stop:     $remote_fs $syslog
 # Default-Start:     2 3 4 5
@@ -9,9 +9,9 @@
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
 
-dir="/opt/factorio/bin/x64"
-cmd="/opt/factorio/bin/x64/factorio --start-server /opt/factorio/Uitwijkse_Factory.zip --bind 192.168.178.111 > output.log"
-user="factorio"
+dir="/opt/jellfin"
+cmd="/opt/jellfin.sh"
+user="jellfin"
 
 name=`basename $0`
 pid_file="/var/run/$name.pid"

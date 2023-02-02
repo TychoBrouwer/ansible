@@ -28,12 +28,20 @@
     - name: Ensure samba group exists
       ansible.builtin.group:
         name: "{{ sambauser_group }}"
+        gid: 3500
+        state: present
+
+    - name: Ensure samba user group exists
+      ansible.builtin.group:
+        name: "{{ sambauser_name }}"
+        gid: 3501
         state: present
 
     - name: Ensure samba user exists
       ansible.builtin.user:
         name: "{{ sambauser_name }}"
-        group: "{{ sambauser_group }}"
+        groups: "{{ sambauser_name }},{{ sambauser_group }}"
+        uid: 1000
         password: "{{ sambauser_password | password_hash(hashtype='sha512', salt=sambauser_salt) }}"
         state: present
 
@@ -41,25 +49,7 @@
       ansible.builtin.file:
         path: /share
         state: directory
-        owner: "{{ sambauser_name }}"
-        group: "{{ sambauser_group }}"
-        mode: "0664"
-
-    - name: Ensure file share folders exist
-      ansible.builtin.file:
-        path: /share/file-share
-        state: directory
-        owner: "{{ sambauser_name }}"
-        group: "{{ sambauser_group }}"
-        mode: "0664"
-
-    - name: Ensure file share folders exist
-      ansible.builtin.file:
-        path: /share/video-share
-        state: directory
-        owner: "{{ sambauser_name }}"
-        group: "{{ sambauser_group }}"
-        mode: "0664"
+        mode: "0775"
 
     - name: Copy smb config to remote
       ansible.builtin.copy:

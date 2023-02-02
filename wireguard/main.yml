@@ -23,7 +23,6 @@
         name:
           - iptables
           - git
-          # - gunicorn
         state: present
 
     - name: Ensure wireguard is installed (Debian)
@@ -54,7 +53,7 @@
           - flask
           - icmplib
           - gunicorn
-          # - flask_qrcode
+          - flask_qrcode
 
     - name: Copy wg0 config file to remote
       ansible.builtin.copy:
@@ -68,19 +67,12 @@
         state: started
         enabled: true
 
-    - name: Set permission of wireguard folder
-      ansible.builtin.file:
-        path: /etc/wireguard
-        mode: '0755'
-        state: directory
-        recurse: true
-
     - name: Git clone wireguard dashboard repository
       ansible.builtin.git:
         repo: "{{ dashboard_git_repo }}"
         dest: "{{ dashboard_install_location }}"
         clone: true
-        update: true
+        force: true
         depth: 1
 
     - name: Set wg deamon executable

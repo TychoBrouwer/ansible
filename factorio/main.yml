@@ -1,7 +1,6 @@
 ---
 - name: Install factorio server
   hosts: all
-  gather_facts: false
 
   vars_files:
     - vars.yml
@@ -94,3 +93,10 @@
         state: started
         enabled: true
       when: ansible_distribution == "CentOS"
+
+    - name: Ensure factorio file permissions are correct
+      ansible.builtin.file:
+        path: "{{ factorio_install_location }}/factorio"
+        owner: "{{ user_name }}"
+        group: "{{ group_name }}"
+        recurse: true

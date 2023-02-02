@@ -1,16 +1,17 @@
 ---
 - name: Initiate server
-  hosts: all
+  hosts: factorio
 
   vars_files:
     - vars.yml
     - vars-private.yml
 
   handlers:
-    - name: Restart ssh
+    - name: Restart sshd
       ansible.builtin.service:
         name: sshd
-        state: restarted
+        state: reloaded
+        enabled: true
 
   pre_tasks:
     - name: Update cache if needed (Debian)
@@ -32,6 +33,7 @@
           - python3
           - python3-pip
           - openssh-server
+          - net-tools
         state: present
 
     - name: Ensure SSH password authentication is disabled
@@ -44,7 +46,6 @@
       with_items:
         - regexp: "^PasswordAuthentication"
           line: "PasswordAuthentication no"
-      notify: Restart ssh
 
     - name: Ensure .ssh folder is present
       ansible.builtin.file:
@@ -62,6 +63,7 @@
         src: ./authorized_keys
         dest: "{{ ssh_key_location }}/authorized_keys"
         mode: "0600"
+      notify: Restart sshd
 
     - name: Ensure git system name is set
       community.general.git_config:

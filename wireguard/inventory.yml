@@ -3,3 +3,5 @@ all:
   hosts:
     wireguard:
       ansible_host: 192.168.178.102
+  vars:
+      ansible_user: root

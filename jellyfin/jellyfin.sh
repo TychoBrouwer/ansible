@@ -1,7 +1,7 @@
 #!/bin/bash
 JELLYFINDIR="/opt/jellyfin"
-FFMPEGDIR="/usr/share"
-#FFMPEGDIR="/usr/share/jellyfin-ffmpeg"
+#FFMPEGDIR="/usr/share"
+FFMPEGDIR="/usr/share/jellyfin-ffmpeg"
 
 $JELLYFINDIR/jellyfin \
  -d $JELLYFINDIR/data \

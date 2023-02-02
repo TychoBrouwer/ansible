@@ -4,6 +4,7 @@
 
   vars_files:
     - vars.yml
+    - vars-private.yml
 
   handlers:
     - name: Restart unbound
@@ -78,9 +79,8 @@
     - name: Ensure Pi-hole is installed
       block:
         - name: Try using Pi-hole
-          ansible.builtin.command: which nano
+          ansible.builtin.command: pihole --version
           register: which_pihole
-          failed_when: false
           changed_when: false
 
       rescue:
@@ -88,3 +88,7 @@
           ansible.builtin.command: "{{ pihole_install_script }} --unattended"
           notify: Pihole enable
           failed_when: false
+
+    - name: Ensure Pi-hole password is set
+      ansible.builtin.command: "pihole -a -p {{ pihole_admin_password }}"
+      changed_when: false

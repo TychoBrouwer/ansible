@@ -67,6 +67,10 @@
         dest: /etc/samba/smb.conf
         mode: "0664"
 
+    - name: Ensure smb password is set
+      ansible.builtin.shell: "(echo {{ sambauser_password }}; echo {{ sambauser_password }}) | smbpasswd -s -a {{ sambauser_name }}"
+      changed_when: false
+
     - name: Ensure smbd service is started and enabled
       ansible.builtin.service:
         name: smbd

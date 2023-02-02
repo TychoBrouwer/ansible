@@ -60,3 +60,8 @@
           void({
                                       title: gettext('No valid subscription'),
       notify: Restart pveproxy
+
+    - name: Ensure files/ documents folder is present
+      ansible.builtin.file:
+        path: /media/file_share
+        state: directory

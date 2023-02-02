@@ -6,7 +6,15 @@
     - vars.yml
     - vars-private.yml
 
+  vars:
+    xz_package: xz-utils
+
   pre_tasks:
+    - name: Overwrite vars for Red Hat
+      set_fact:
+        xz_package: xz
+      when: ansible_os_family == "RedHat"
+
     - name: Update cache if needed (Debian)
       ansible.builtin.apt:
         update_cache: true
@@ -21,16 +29,8 @@
     - name: Ensure xz utils is installed (Debian)
       ansible.builtin.package:
         name:
-          - xz-utils
+          - "{{ xz_package }}"
         state: present
-      when: ansible_os_family == "Debian"
-
-    - name: Ensure xz utils is installed (RedHat)
-      ansible.builtin.package:
-        name:
-          - xz
-        state: present
-      when: ansible_os_family == "RedHat"
 
   tasks:
     - name: Ensure factorio group exists
@@ -73,13 +73,6 @@
         mode: '0664'
       when: not ansible_distribution == "CentOS"
 
-    - name: Ensure factorio service is enabled and started (systemd)
-      ansible.builtin.systemd:
-        name: factorio
-        state: started
-        enabled: true
-      when: not ansible_distribution == "CentOS"
-
     - name: Ensure factorio service file is on remote (sysvinit)
       ansible.builtin.copy:
         src: ./factorio
@@ -87,12 +80,11 @@
         mode: '0755'
       when: ansible_distribution == "CentOS"
 
-    - name: Ensure factorio service is enabled and started (sysvinit)
-      ansible.builtin.sysvinit:
+    - name: Ensure factorio service is enabled and started
+      ansible.builtin.service:
         name: factorio
         state: started
         enabled: true
-      when: ansible_distribution == "CentOS"
 
     - name: Ensure factorio file permissions are correct
       ansible.builtin.file:

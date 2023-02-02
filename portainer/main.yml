@@ -23,6 +23,7 @@
           - ca-certificates
           - curl
           - gnupg
+          - git
         state: present
 
   tasks:
@@ -76,3 +77,27 @@
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
           - portainer_data:/data
+
+    - name: Ensure Dashy Docker container is running
+      community.docker.docker_container:
+        name: dashy
+        image: tychobrouwer/dashy-tychobrouwer
+        state: started
+        ports:
+          - "8080:80"
+        restart_policy: always
+
+    - name: Ensure Dashy config is present on remote
+      ansible.builtin.copy:
+        src: ./dashy-conf.yml
+        dest: /root/dashy-conf.yml
+        mode: "0644"
+
+    - name: Ensure Dashy config is present on container
+      community.docker.docker_container_copy_into:
+        container: dashy
+        path: /root/dashy-conf.yml
+        container_path: /app/public/conf.yml
+        owner_id: 0
+        group_id: 0
+        mode: "0644"

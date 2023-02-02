@@ -1,0 +1,158 @@
+---
+# Page meta info, like heading, footer text and nav links
+pageInfo:
+  title: Dashboard
+  description: 192.168.178.103:8080 | portainer.home:8080
+  # navLinks:
+  # - title: GitHub
+  #   path: https://github.com/Lissy93/dashy
+  # - title: Documentation
+  #   path: https://dashy.to/docs
+
+# Optional app settings and configuration
+appConfig:
+  theme: lissy
+  # dashy-docs, one-dark, lissy
+  defaultOpeningMethod: sametab
+  hideComponents:
+    hideSettings: true
+  preventWriteToDisk: true
+  disableConfiguration: true
+  customCss: >
+    #dashy{
+      height:100vh;
+      display:flex;
+      flex-flow:column
+    }
+    html[data-theme=lissy] .home{
+      flex:1 1 auto;
+      padding-bottom:0!important
+    }
+    .show-btn[data-v-0222a7c0]{
+      display:none
+    }
+    form.normal[data-v-1958a3d0]{
+      border-radius:0 0 var(--curve-factor-navbar) var(--curve-factor-navbar)!important
+    }
+    form.normal label[data-v-1958a3d0]{
+      display:none
+    }
+    form.normal input[data-v-1958a3d0]{
+      font-size:23px!important;
+      width:300px!important;
+      height:1.4rem!important
+    }
+    .show-hide-container[data-v-0dc5c42a]{
+      display:none
+    }
+    .edit-mode-item{
+      display:none
+    }
+    .opening-method-icon svg{
+      display:none
+    }
+    .tooltip{
+      display:none!important
+    }
+    .indicator[data-v-4b522b5b]{
+      cursor:pointer!important
+    }
+  webSearch:
+    searchEngine: google
+
+# Main content - An array of sections, each containing an array of items
+sections:
+  - name: Home Network
+    icon: fas fa-network-wired
+    displayData:
+      itemCountX: 2
+
+    items:
+      - title: Proxmox VE
+        icon: hl-proxmox
+        url: https://pve.home:8006/
+        statusCheck: true
+        statusCheckUrl: https://192.168.178.100:8006
+        statusCheckAllowInsecure: true
+
+      - title: Pi-Hole
+        icon: hl-pihole-unbound
+        url: http://pi-hole.home/admin
+        statusCheck: true
+        statusCheckUrl: http://192.168.178.101/admin
+
+      - title: Wireguard
+        icon: hl-wireguard
+        url: http://wireguard.home:10086/
+        statusCheck: true
+        statusCheckUrl: http://192.168.178.102:10086
+
+      - title: Portainer
+        icon: hl-portainer
+        url: http://portainer.home:9000/#!/2/docker/containers
+        statusCheck: true
+        statusCheckUrl: http://192.168.178.103:9000
+
+      - title: Jellyfin
+        url: http://jellyfin.home:8096/web/index.html#!/home.html
+        icon: hl-jellyfin
+        statusCheck: true
+        statusCheckUrl: http://192.168.178.111:8096
+
+  - name: Entertainment
+    icon: fas fa-tv
+    displayData:
+      itemCountX: 2
+
+    items:
+      - title: Youtube
+        icon: hl-youtube-play
+        url: https://www.youtube.com/
+
+      - title: Netflix
+        icon: favicon
+        url: https://www.netflix.com/browse
+
+      - title: Videoland
+        icon: favicon
+        url: https://v2.videoland.com/
+
+  - name: School
+    icon: fas fa-graduation-cap
+    displayData:
+      itemCountX: 2
+
+    items:
+      - title: Canvas
+        icon: https://www.instructure.com/sites/default/files/image/2021-12/Canvas_logo_single_mark.png
+        url: https://canvas.tue.nl/
+
+      - title: Osiris
+        icon: https://www.caci.nl/wp-content/uploads/2021/03/Osiris_Pyramid_v5.png
+        url: https://tue.osiris-student.nl/#/home
+
+      - title: Osiris PlanApp
+        icon: https://www.instructure.com/sites/default/files/image/2021-12/Canvas_logo_single_mark.png
+        url: https://tue.osiris-planapp.nl/#/
+
+      - title: My TU/e
+        icon: favicon
+        url: https://go.mydaycloud.com/dashboard/home
+
+  - name: Development
+    icon: fas fa-code
+    displayData:
+      itemCountX: 2
+
+    items:
+      - title: Docker.io
+        url: https://hub.docker.com/repositories/tychobrouwer
+        icon: hl-docker
+
+      - title: GitHub
+        url: https://github.com/TychoBrouwer?tab=repositories
+        icon: hl-github-light
+
+      - title: Font Awesome
+        url: https://fontawesome.com/search
+        icon: hl-fontawesome

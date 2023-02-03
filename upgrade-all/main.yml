@@ -13,3 +13,8 @@
       ansible.builtin.package:
         name: "*"
         state: latest
+
+    - name: Remove packages
+      ansible.builtin.package:
+        name: ifupdown
+        state: absent

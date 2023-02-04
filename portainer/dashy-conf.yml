@@ -11,8 +11,12 @@ pageInfo:
 
 # Optional app settings and configuration
 appConfig:
-  theme: lissy
-  # dashy-docs, one-dark, lissy
+  auth:
+    users:
+      - user: admin
+        type: admin
+        hash: F9FF69FFE5BC0DAC633BFD0D526306F30F47700C5BDD1ADF210653A1F7CAC2BE
+  theme: lissy # dashy-docs, one-dark, lissy
   defaultOpeningMethod: sametab
   hideComponents:
     hideSettings: true
@@ -77,27 +81,36 @@ sections:
 
       - title: Pi-Hole
         icon: hl-pihole-unbound
-        url: http://pi-hole.home/admin
+        url: https://pihole.tbrouwer.com/
         statusCheck: true
         statusCheckUrl: http://192.168.178.101/admin
 
       - title: Wireguard
         icon: hl-wireguard
-        url: http://wireguard.home:10086/
+        url: https://wireguard.tbrouwer.com/
         statusCheck: true
         statusCheckUrl: http://192.168.178.102:10086
 
       - title: Portainer
         icon: hl-portainer
-        url: http://portainer.home:9000/#!/2/docker/containers
+        url: http://portainer.tbrouwer.com/#!/2/docker/containers
         statusCheck: true
-        statusCheckUrl: http://192.168.178.103:9000
 
       - title: Jellyfin
-        url: http://jellyfin.home:8096/web/index.html#!/home.html
+        url: https://Jellyfin.tbrouwer.com/web/index.html#!/home.html
         icon: hl-jellyfin
         statusCheck: true
         statusCheckUrl: http://192.168.178.111:8096
+
+      - title: Traefik
+        url: http://192.168.178.103:8080/
+        icon: hl-traefik
+        statusCheck: true
+        statusCheckUrl: http://192.168.178.103:8080
+
+      - title: FritzBox
+        url: http://192.168.178.1/
+        icon: hl-avmfritzbox
 
   - name: Entertainment
     icon: fas fa-tv
@@ -131,6 +144,14 @@ sections:
         icon: https://www.caci.nl/wp-content/uploads/2021/03/Osiris_Pyramid_v5.png
         url: https://tue.osiris-student.nl/#/home
 
+      - title: Office 365
+        icon: favicon
+        url: https://www.office.com/
+
+      - title: ANS Delft
+        icon: favicon
+        url: https://ans.app/
+
       - title: Osiris PlanApp
         icon: https://www.instructure.com/sites/default/files/image/2021-12/Canvas_logo_single_mark.png
         url: https://tue.osiris-planapp.nl/#/
@@ -152,6 +173,10 @@ sections:
       - title: GitHub
         url: https://github.com/TychoBrouwer?tab=repositories
         icon: hl-github-light
+
+      - title: Cloudflare
+        url: https://dash.cloudflare.com/
+        icon: hl-cloudflare
 
       - title: Font Awesome
         url: https://fontawesome.com/search

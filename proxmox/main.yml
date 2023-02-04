@@ -26,6 +26,7 @@
           - neofetch
           - htop
           - ifupdown2
+          - acl
         state: present
 
     - name: Ensure dark theme file is present
@@ -61,7 +62,29 @@
                                       title: gettext('No valid subscription'),
       notify: Restart pveproxy
 
-    - name: Ensure files/ documents folder is present
-      ansible.builtin.file:
-        path: /media/file_share
-        state: directory
+    - name: Ensure share group exists
+      ansible.builtin.group:
+        name: "{{ share_group }}"
+        gid: 3500
+        state: present
+
+    - name: Ensure share user group exists
+      ansible.builtin.group:
+        name: "{{ shareuser_name }}"
+        gid: 3501
+        state: present
+
+    - name: Ensure share user exists
+      ansible.builtin.user:
+        name: "{{ shareuser_name }}"
+        group: "{{ shareuser_name }}"
+        groups: "{{ share_group }}"
+        uid: 1000
+        password: "{{ sambauser_password | password_hash(hashtype='sha512', salt=sambauser_salt) }}"
+        state: present
+
+    - name: Ensure root is in share group
+      ansible.builtin.user:
+        name: root
+        groups: "{{ share_group }}"
+        state: present

@@ -1,5 +1,0 @@
----
-- name: Setup proxmox server
-  hosts: all
-
-  tasks:

@@ -50,6 +50,10 @@
           - gunicorn
           - flask_qrcode
 
+    - name: Ensure ip forwarding is set
+      ansible.builtin.command: sysctl -w net.ipv4.ip_forward=1
+      changed_when: false
+
     - name: Copy wg0 config file to remote
       ansible.builtin.copy:
         src: ./wg0.conf
@@ -59,7 +63,7 @@
     - name: Enable wg0 wireguard systemd service
       ansible.builtin.systemd:
         name: wg-quick@wg0.service
-        state: started
+        state: reloaded
         enabled: true
 
     - name: Git clone wireguard dashboard repository

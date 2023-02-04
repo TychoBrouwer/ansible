@@ -7,4 +7,4 @@ ffmpeg_version: 5.1.2-7
 rpmfusion_free_repo: https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm
 rpmfusion_nonfree_repo: https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm
 user_name: jellyfin
-group_name: jellyfin
+share_group: sharegroup

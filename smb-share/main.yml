@@ -25,9 +25,9 @@
           - samba
         state: present
 
-    - name: Ensure samba group exists
+    - name: Ensure share group exists
       ansible.builtin.group:
-        name: "{{ sambauser_group }}"
+        name: "{{ share_group }}"
         gid: 3500
         state: present
 
@@ -40,9 +40,16 @@
     - name: Ensure samba user exists
       ansible.builtin.user:
         name: "{{ sambauser_name }}"
-        groups: "{{ sambauser_name }},{{ sambauser_group }}"
+        group: "{{ sambauser_name }}"
+        groups: "{{ share_group }}"
         uid: 1000
         password: "{{ sambauser_password | password_hash(hashtype='sha512', salt=sambauser_salt) }}"
+        state: present
+
+    - name: Ensure root is in share group
+      ansible.builtin.user:
+        name: root
+        groups: "{{ share_group }}"
         state: present
 
     - name: Ensure share folder exists

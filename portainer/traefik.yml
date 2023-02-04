@@ -1,0 +1,46 @@
+---
+http:
+  routers:
+    jellyfin:
+      entryPoints:
+        - web
+      rule: "Host(`jellyfin.tbrouwer.com`)"
+      service: jellyfin
+
+    pihole:
+      entryPoints:
+        - web
+      rule: "Host (`pihole.tbrouwer.com`)"
+      middlewares:
+        - "addprefix-pihole"
+      service: pihole
+
+    wireguard:
+      entryPoints:
+        - web
+      rule: "Host (`wireguard.tbrouwer.com`)"
+      service: wireguard
+
+  services:
+    jellyfin:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.178.111:8096/"
+        # passHostHeader: true
+
+    pihole:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.178.101:80/"
+        # passHostHeader: true
+
+    wireguard:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.178.102:10086/"
+        # passHostHeader: true
+
+  middlewares:
+    addprefix-pihole:
+      addPrefix:
+        prefix: "/admin"

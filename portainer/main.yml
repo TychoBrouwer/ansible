@@ -4,6 +4,7 @@
 
   vars_files:
     - vars.yml
+    - vars-private.yml
 
   pre_tasks:
     - name: Update cache if needed (Debian)
@@ -61,6 +62,52 @@
         state: started
         enabled: true
 
+    - name: Ensure web network for Traefik is present
+      docker_network:
+        name: web
+        internal: false
+        state: present
+
+    - name: Ensure Traefik config is present on remote
+      ansible.builtin.copy:
+        src: ./traefik.yml
+        dest: /root/traefik.yml
+        mode: "0644"
+
+    - name: Ensure Traefik reverse proxy Docker container is running
+      community.docker.docker_container:
+        name: traefik
+        image: traefik:v2.9
+        state: started
+        command:
+          - --api.insecure=true # <== Enabling insecure api, NOT RECOMMENDED FOR PRODUCTION
+          - --api.dashboard=true # <== Enabling the dashboard to view services, middlewares, routers, etc.
+          # - --api.debug=true # <== Enabling additional endpoints for debugging and profiling
+          # - --log.level=DEBUG # <== Setting the level of the logs from traefik
+          - --providers.docker=true # <== Enabling docker as the provider for traefik
+          - --providers.docker.exposedbydefault=false # <== Don't expose every container to traefik
+          - --providers.docker.network=web # <== Operate on the docker network named web
+          - --providers.file.filename=/etc/traefik/dynamic.yml # <== Referring to a dynamic configuration file
+          - --entrypoints.web.address=:80 # <== Defining an entrypoint for port :80 named web
+          #- --entrypoints.web-secured.address=:443 # <== Defining an entrypoint for https on port :443 (not really needed)
+          #- --certificatesresolvers.mytlschallenge.acme.tlschallenge=true # <== Enable TLS-ALPN-01 (not really needed)
+          #- --certificatesresolvers.mytlschallenge.acme.email=you@youremail # <== Set your email (not really needed)
+          #- --certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json # <== SSL stuff we don't need.
+        ports:
+          - "80:80"
+          - "8080:8080"
+          - "443:443"
+        restart_policy: always
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - /root/traefik.yml:/etc/traefik/dynamic.yml
+        networks:
+          - name: web
+        # labels:
+        #   traefik.enable: "true" # <== Enable traefik on itself to view dashboard and assign subdomain to$
+        #   traefik.http.routers.api.rule: "Host(`monitor.tbrouwer.com`)" # <== Setting the domain for the d$
+        #   traefik.http.routers.api.service: "api@internal" # <== Enabling the api to be a service to acce$
+
     - name: Ensure Portainer Docker volume is present
       community.docker.docker_volume:
         name: portainer_data
@@ -71,8 +118,16 @@
         image: portainer/portainer-ce
         state: started
         ports:
-          - "8000:8000"
+          # - "8000:8000"
           - "9000:9000"
+        networks:
+          - name: web
+        labels:
+          traefik.enable: "true"
+          traefik.http.routers.portainer.rule: "Host(`portainer.tbrouwer.com`)"
+          traefik.http.routers.portainer.entrypoints: "web"
+          traefik.http.routers.portainer.service: "portainer"
+          traefik.http.services.portainer.loadbalancer.server.port: "9000"
         restart_policy: always
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
@@ -82,9 +137,15 @@
       community.docker.docker_container:
         name: dashy
         image: tychobrouwer/dashy-tychobrouwer
+        labels:
+          traefik.enable: "true"
+          traefik.http.routers.dashy.rule: "Host(`dash.tbrouwer.com`)"
+          traefik.http.routers.dashy.entrypoints: "web"
         state: started
-        ports:
-          - "8080:80"
+        # ports:
+        #   - "90:80"
+        networks:
+          - name: web
         restart_policy: always
 
     - name: Ensure Dashy config is present on remote
@@ -101,3 +162,14 @@
         owner_id: 0
         group_id: 0
         mode: "0644"
+
+    - name: Ensure Cloudflare DDNS Docker container is running
+      community.docker.docker_container:
+        name: cloudflare-ddns
+        image: oznu/cloudflare-ddns:latest
+        env:
+          API_KEY: "{{ cloudflare_api_key }}"
+          ZONE: "{{ root_domain }}"
+          PROXIED: "true"
+        restart_policy: always
+

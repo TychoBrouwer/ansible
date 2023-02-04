@@ -57,41 +57,55 @@
       when: ansible_os_family == "RedHat"
 
   tasks:
-    - name: Ensure jellyfin group exists
+    - name: Ensure share group exists
       ansible.builtin.group:
-        name: "{{ group_name }}"
+        name: "{{ share_group }}"
+        gid: 3500
+        state: present
+
+    - name: Ensure jellyfin user group exists
+      ansible.builtin.group:
+        name: "{{ user_name }}"
+        gid: 3501
         state: present
 
     - name: Ensure jellyfin user exists
       ansible.builtin.user:
         name: "{{ user_name }}"
-        group: "{{ group_name }}"
+        group: "{{ user_name }}"
+        uid: 1000
         password: "{{ jellyfin_password | password_hash(hashtype='sha512', salt=jellyfin_salt) }}"
         state: present
+
+    - name: Ensure jellyfin is in share permissions
+      ansible.builtin.user:
+        name: "{{ user_name }}"
+        groups: "{{ share_group }}"
+        state: present
+
+    - name: Ensure share folder exists
+      ansible.builtin.file:
+        path: /share
+        state: directory
+        mode: "0775"
 
     - name: Get and unarchive jellyfin headless server files if not present
       ansible.builtin.unarchive:
         src: "{{ jellyfin_download_folder }}/jellyfin_{{ jellyfin_version }}_amd64.tar.gz"
         dest: "{{ install_location }}"
         remote_src: true
-        owner: "{{ user_name }}"
-        group: "{{ group_name }}"
         mode: "0755"
 
     - name: Ensure symbolic link to jellyfin location is present
       ansible.builtin.file:
         src: "{{ install_location }}/jellyfin_{{ jellyfin_version }}"
         dest: "{{ install_location }}/jellyfin"
-        owner: "{{ user_name }}"
-        group: "{{ group_name }}"
         state: link
 
     - name: Ensue jellyfin data folders are present
       ansible.builtin.file:
         path: "{{ install_location }}/jellyfin_{{ jellyfin_version }}/{{ item }}"
         state: directory
-        owner: "{{ user_name }}"
-        group: "{{ group_name }}"
         mode: "0644"
       loop:
         - data
@@ -116,8 +130,6 @@
       ansible.builtin.copy:
         src: ./jellyfin.sh
         dest: "{{ install_location }}/jellyfin/jellyfin.sh"
-        owner: "{{ user_name }}"
-        group: "{{ group_name }}"
         mode: "0755"
 
     - name: Ensure jellyfin service file is on remote (systemd)
@@ -142,9 +154,9 @@
 
     - name: Ensure jellyfin file permissions are correct
       ansible.builtin.file:
-        path: "{{ install_location }}/jellyfin"
+        path: "{{ install_location }}/jellyfin_{{ jellyfin_version }}"
         state: directory
         owner: "{{ user_name }}"
-        group: "{{ group_name }}"
+        group: "{{ user_name }}"
         mode: "0755"
         recurse: true

@@ -15,6 +15,7 @@ appConfig:
     users:
       - user: admin
         type: admin
+        enableGuestAccess: false
         hash: F9FF69FFE5BC0DAC633BFD0D526306F30F47700C5BDD1ADF210653A1F7CAC2BE
   theme: lissy # dashy-docs, one-dark, lissy
   defaultOpeningMethod: sametab

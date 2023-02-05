@@ -112,7 +112,7 @@ sections:
         url: http://192.168.178.1/
         icon: hl-avmfritzbox
 
-  - name: Entertainment
+  - name: General
     icon: fas fa-tv
     displayData:
       itemCountX: 2
@@ -129,6 +129,14 @@ sections:
       - title: Videoland
         icon: favicon
         url: https://v2.videoland.com/
+
+      - title: iCloud
+        icon: favicon
+        url: https://www.icloud.com/
+
+      - title: IMDB
+        icon: favicon
+        url: https://www.imdb.com/
 
   - name: School
     icon: fas fa-graduation-cap

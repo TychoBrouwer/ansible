@@ -2,13 +2,22 @@
 - name: Start Proxmox containers
   hosts: proxmox
 
+  vars_files:
+  - vars-private.yml
+
   tasks:
+    - name: Ensure proxmoxer python package is installed
+      ansible.builtin.pip:
+        name: proxmoxer
+        state: present
+
     - name: Ensure containers are started
       community.general.proxmox:
-        vmid: "{{ container_id }}"
+        vmid: "{{ item }}"
         api_user: root@pam
-        api_password: 1q2w3e
-        api_host: node1
+        api_password: "{{ pve_password }}"
+        api_host: pve
+        unprivileged: true
         state: started
       loop:
         - 101
@@ -27,12 +36,16 @@
         - 104
         - 111
         - 112
+      changed_when: false
+
+    - name: Ensure wg-dashboard is running
+      ansible.builtin.command: "pct exec 102 systemctl restart wg-dashboard"
+      changed_when: false
 
 - name: Ensure containers are updated
   hosts:
     - infrastructure
     - entertainment
-    - projects
 
   tasks:
     - name: Update cache if needed (Debian)

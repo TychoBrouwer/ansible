@@ -93,7 +93,7 @@ sections:
 
       - title: Portainer
         icon: hl-portainer
-        url: http://portainer.tbrouwer.com/#!/2/docker/containers
+        url: https://portainer.tbrouwer.com/#!/2/docker/containers
         statusCheck: true
 
       - title: Jellyfin
@@ -103,7 +103,7 @@ sections:
         statusCheckUrl: http://192.168.178.111:8096
 
       - title: Traefik
-        url: http://192.168.178.103:8080/
+        url: http://traefik.home:8080/
         icon: hl-traefik
         statusCheck: true
         statusCheckUrl: http://192.168.178.103:8080
@@ -112,7 +112,7 @@ sections:
         url: http://192.168.178.1/
         icon: hl-avmfritzbox
 
-  - name: General
+  - name: Media
     icon: fas fa-tv
     displayData:
       itemCountX: 2

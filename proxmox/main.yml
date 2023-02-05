@@ -2,6 +2,9 @@
 - name: Setup proxmox server
   hosts: all
 
+  vars_files:
+    - vars.yml
+
   handlers:
     - name: Restart pveproxy
       ansible.builtin.service:
@@ -25,8 +28,8 @@
         name:
           - neofetch
           - htop
+          - iotop
           - ifupdown2
-          - acl
         state: present
 
     - name: Ensure dark theme file is present
@@ -62,6 +65,11 @@
                                       title: gettext('No valid subscription'),
       notify: Restart pveproxy
 
+    - name: Ensure icloudpd python is installed
+      ansible.builtin.pip:
+        name: icloudpd
+        state: present
+
     - name: Ensure share group exists
       ansible.builtin.group:
         name: "{{ share_group }}"
@@ -80,7 +88,6 @@
         group: "{{ shareuser_name }}"
         groups: "{{ share_group }}"
         uid: 1000
-        password: "{{ sambauser_password | password_hash(hashtype='sha512', salt=sambauser_salt) }}"
         state: present
 
     - name: Ensure root is in share group
@@ -88,3 +95,69 @@
         name: root
         groups: "{{ share_group }}"
         state: present
+
+    # https://medium.com/@MARatsimbazafy/journey-to-deep-learning-nvidia-gpu-passthrough-to-lxc-container-97d0bc474957
+
+    - name: Ensure backports repository is added
+      ansible.builtin.apt_repository:
+        repo: deb http://httpredir.debian.org/debian bullseye-backports main contrib non-free
+        state: present
+
+    - name: Get proxmox version
+      ansible.builtin.command: uname -r
+      changed_when: false
+      register: proxmox_info
+
+    - name: Install proxmox headers are installed
+      ansible.builtin.apt:
+        name: "pve-headers-{{ proxmox_info.stdout }}"
+        state: present
+
+    - name: Install nvidia drivers
+      ansible.builtin.apt:
+        name: nvidia-driver
+        state: present
+        default_release: bullseye-backports
+        update_cache: yes
+
+    - name: Install nvidia monitoring package
+      ansible.builtin.apt:
+        name:
+          - nvidia-smi
+        state: present
+
+    - name: Install nvidia monitoring package
+      ansible.builtin.apt:
+        name:
+          - nvidia-smi
+        state: present
+
+    - name: Check nvidia-uvm exists
+      stat:
+        path: /dev/nvidia-uvm
+      register: register_name
+      changed_when: false
+
+    - name: Make sure nvidia.rules file is present
+      ansible.builtin.copy:
+        src: ./nvidia-uvm-init.sh
+        dest: /root/nvidia-uvm-init.sh
+        mode: "0755"
+      when: register_name.stat.exists
+
+    - name: Make sure nvidia.rules file is present
+      ansible.builtin.cron:
+        name: "run nvidia uvm init at startup"
+        special_time: reboot
+        job: /root/nvidia-uvm-init.sh
+
+    - name: Add nvidia and nvidia_uvm to modules
+      ansible.builtin.blockinfile:
+        path: /etc/modules-load.d/modules.conf
+        block: |
+          nvidia
+          nvidia_uvm
+
+    - name: Update initramfs
+      ansible.builtin.command: update-initramfs -u
+      changed_when: false

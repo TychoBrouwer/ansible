@@ -119,6 +119,10 @@ sections:
       itemCountX: 2
 
     items:
+      - title: Google Calandar
+        icon: favicon
+        url: https://calendar.google.com/
+
       - title: Youtube
         icon: hl-youtube-play
         url: https://www.youtube.com/
@@ -130,6 +134,10 @@ sections:
       - title: Videoland
         icon: favicon
         url: https://v2.videoland.com/
+
+      - title: Spotify
+        icon: hl-spotify
+        url: https://open.spotify.com/
 
       - title: iCloud
         icon: favicon

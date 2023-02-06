@@ -2,7 +2,7 @@
 # Page meta info, like heading, footer text and nav links
 pageInfo:
   title: Dashboard
-  description: 192.168.178.103:8080 | portainer.home:8080
+  description: 192.168.178.103:8080 | portainer.tbrouwer.com
   # navLinks:
   # - title: GitHub
   #   path: https://github.com/Lissy93/dashy
@@ -11,18 +11,15 @@ pageInfo:
 
 # Optional app settings and configuration
 appConfig:
-  auth:
-    users:
-      - user: admin
-        type: admin
-        enableGuestAccess: false
-        hash: F9FF69FFE5BC0DAC633BFD0D526306F30F47700C5BDD1ADF210653A1F7CAC2BE
   theme: lissy # dashy-docs, one-dark, lissy
   defaultOpeningMethod: sametab
   hideComponents:
     hideSettings: true
   preventWriteToDisk: true
   disableConfiguration: true
+  webSearch:
+    searchEngine: google
+    openingMethod: sametab
   customCss: >
     #dashy{
       height:100vh;
@@ -62,8 +59,6 @@ appConfig:
     .indicator[data-v-4b522b5b]{
       cursor:pointer!important
     }
-  webSearch:
-    searchEngine: google
 
 # Main content - An array of sections, each containing an array of items
 sections:
@@ -142,6 +137,10 @@ sections:
       - title: iCloud
         icon: favicon
         url: https://www.icloud.com/
+
+      - title: Reddit
+        icon: favicon
+        url: https://www.reddit.com/
 
       - title: IMDB
         icon: favicon

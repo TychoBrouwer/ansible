@@ -26,7 +26,7 @@
         name: "*"
         state: latest
 
-    - name: Ensure xz utils is installed (Debian)
+    - name: Ensure xz utils is installed
       ansible.builtin.package:
         name:
           - "{{ xz_package }}"

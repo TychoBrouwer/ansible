@@ -1,3 +1,4 @@
+# https://medium.com/@MARatsimbazafy/journey-to-deep-learning-nvidia-gpu-passthrough-to-lxc-container-97d0bc474957
 ---
 - name: Setup proxmox server
   hosts: all
@@ -95,8 +96,6 @@
         name: root
         groups: "{{ share_group }}"
         state: present
-
-    # https://medium.com/@MARatsimbazafy/journey-to-deep-learning-nvidia-gpu-passthrough-to-lxc-container-97d0bc474957
 
     - name: Ensure backports repository is added
       ansible.builtin.apt_repository:

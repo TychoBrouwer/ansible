@@ -115,7 +115,7 @@ sections:
         statusCheck: true
         statusCheckUrl: http://192.168.178.103:8080
 
-      - title: Torrenting
+      - title: qBittorrent
         url: https://torrent.tbrouwer.com/
         icon: hl-qbittorrent
         statusCheck: true

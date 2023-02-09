@@ -19,7 +19,7 @@
         state: latest
 
   tasks:
-    - name: Ensure NordVPN installer is present
+    - name: Ensure NordVPN installer is present on remote
       ansible.builtin.copy:
         src: ./nordvpn-install.sh
         dest: /root/nordvpn-install.sh
@@ -27,6 +27,8 @@
 
     - name: Ensure NordVPN is installed
       ansible.builtin.command: /root/nordvpn-install.sh
+
+    # Setup NordVPN at startup and ensure is started
 
     - name: Ensure share group exists
       ansible.builtin.group:
@@ -41,4 +43,15 @@
         groups: "{{ share_group }}"
         uid: 1000
         password: "{{ shareuser_password | password_hash(hashtype='sha512', salt=shareuser_salt) }}"
+        state: present
+
+    - name: Ensure share folder exists
+      ansible.builtin.file:
+        path: /share
+        state: directory
+        mode: "0775"
+
+    - name: Ensure qBitttorrent is installed
+      ansible.builtin.package:
+        name: qbittorrent-nox
         state: present

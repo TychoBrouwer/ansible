@@ -15,17 +15,17 @@ http:
       rule: "Host (`wireguard.tbrouwer.com`)"
       service: wireguard
 
-    jellyfin:
-      entryPoints:
-        - web
-      rule: "Host(`jellyfin.tbrouwer.com`)"
-      service: jellyfin
-
     torrent:
       entryPoints:
         - web
       rule: "Host(`torrent.tbrouwer.com`)"
       service: torrent
+
+    jellyfin:
+      entryPoints:
+        - web
+      rule: "Host(`jellyfin.tbrouwer.com`)"
+      service: jellyfin
 
   services:
     pihole:
@@ -40,18 +40,17 @@ http:
           - url: "http://192.168.178.102:10086/"
         # passHostHeader: true
 
-    jellyfin:
-      loadBalancer:
-        servers:
-          - url: "http://192.168.178.111:8096/"
-        # passHostHeader: true
-
     torrent:
       loadBalancer:
         servers:
           - url: "http://192.168.178.105:8080/"
         # passHostHeader: true
 
+    jellyfin:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.178.111:8096/"
+        # passHostHeader: true
 
   middlewares:
     addprefix-pihole:

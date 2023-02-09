@@ -1,12 +1,6 @@
 ---
 http:
   routers:
-    jellyfin:
-      entryPoints:
-        - web
-      rule: "Host(`jellyfin.tbrouwer.com`)"
-      service: jellyfin
-
     pihole:
       entryPoints:
         - web
@@ -21,13 +15,19 @@ http:
       rule: "Host (`wireguard.tbrouwer.com`)"
       service: wireguard
 
-  services:
     jellyfin:
-      loadBalancer:
-        servers:
-          - url: "http://192.168.178.111:8096/"
-        # passHostHeader: true
+      entryPoints:
+        - web
+      rule: "Host(`jellyfin.tbrouwer.com`)"
+      service: jellyfin
 
+    torrent:
+      entryPoints:
+        - web
+      rule: "Host(`torrent.tbrouwer.com`)"
+      service: torrent
+
+  services:
     pihole:
       loadBalancer:
         servers:
@@ -39,6 +39,19 @@ http:
         servers:
           - url: "http://192.168.178.102:10086/"
         # passHostHeader: true
+
+    jellyfin:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.178.111:8096/"
+        # passHostHeader: true
+
+    torrent:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.178.105:8080/"
+        # passHostHeader: true
+
 
   middlewares:
     addprefix-pihole:

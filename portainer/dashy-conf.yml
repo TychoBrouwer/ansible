@@ -59,6 +59,17 @@ appConfig:
     .indicator[data-v-4b522b5b]{
       cursor:pointer!important
     }
+    .item.size-medium .tile-title {
+      height:auto
+    }
+    .item-icon.wrapper-medium {
+      display:flex;
+      align-items:center;
+      padding:5px 0
+    }
+    .item.size-medium div img {
+      margin-bottom:0
+    }
 
 # Main content - An array of sections, each containing an array of items
 sections:
@@ -93,7 +104,7 @@ sections:
         statusCheck: true
 
       - title: Jellyfin
-        url: https://Jellyfin.tbrouwer.com/web/index.html#!/home.html
+        url: https://jellyfin.tbrouwer.com/web/index.html#!/home.html
         icon: hl-jellyfin
         statusCheck: true
         statusCheckUrl: http://192.168.178.111:8096
@@ -103,6 +114,12 @@ sections:
         icon: hl-traefik
         statusCheck: true
         statusCheckUrl: http://192.168.178.103:8080
+
+      - title: Torrenting
+        url: https://torrent.tbrouwer.com/
+        icon: hl-qbittorrent
+        statusCheck: true
+        statusCheckUrl: http://192.168.178.105:8080
 
       - title: FritzBox
         url: http://192.168.178.1/
@@ -156,25 +173,37 @@ sections:
         icon: https://www.instructure.com/sites/default/files/image/2021-12/Canvas_logo_single_mark.png
         url: https://canvas.tue.nl/
 
+      - title: Office 365
+        icon: favicon
+        url: https://www.office.com/
+
       - title: Osiris
         icon: https://www.caci.nl/wp-content/uploads/2021/03/Osiris_Pyramid_v5.png
         url: https://tue.osiris-student.nl/#/home
 
-      - title: Office 365
-        icon: favicon
-        url: https://www.office.com/
+      - title: Osiris PlanApp
+        icon: https://www.caci.nl/wp-content/uploads/2021/03/Osiris_Pyramid_v5.png
+        url: https://tue.osiris-planapp.nl/#/
 
       - title: ANS Delft
         icon: favicon
         url: https://ans.app/
 
-      - title: Osiris PlanApp
-        icon: https://www.instructure.com/sites/default/files/image/2021-12/Canvas_logo_single_mark.png
-        url: https://tue.osiris-planapp.nl/#/
+      - title: SOWISO
+        icon: https://sowiso.nl/favicon.png
+        url: https://cloud.sowiso.nl/
 
-      - title: My TU/e
-        icon: favicon
-        url: https://go.mydaycloud.com/dashboard/home
+      - title: Video College
+        url: https://videocollege.tue.nl/Mediasite/Showcase/5faaf306ddb04160a674b9709f79809f44
+        icon: https://mediasite.com/wp-content/themes/base-child/assets/images/Mediasite-Logo-Mark_Color@2x.png
+
+      - title: Intranet
+        icon: https://www.tue.nl/favicon-64.ico
+        url: https://tuenl.sharepoint.com/
+
+      - title: TU/e Databases
+        icon: hl-bookstack
+        url: http://library.tue.nl/AZDatabases/
 
   - name: Development
     icon: fas fa-code
@@ -182,10 +211,6 @@ sections:
       itemCountX: 2
 
     items:
-      - title: Docker.io
-        url: https://hub.docker.com/repositories/tychobrouwer
-        icon: hl-docker
-
       - title: GitHub
         url: https://github.com/TychoBrouwer?tab=repositories
         icon: hl-github-light
@@ -193,6 +218,14 @@ sections:
       - title: Cloudflare
         url: https://dash.cloudflare.com/
         icon: hl-cloudflare
+
+      - title: Docker.io
+        url: https://hub.docker.com/repositories/tychobrouwer
+        icon: hl-docker
+
+      - title: npm
+        url: https://www.npmjs.com/~tbrouwer
+        icon: favicon
 
       - title: Font Awesome
         url: https://fontawesome.com/search

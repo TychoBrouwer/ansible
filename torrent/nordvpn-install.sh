@@ -109,7 +109,7 @@ install_apt() {
 
         echo "deb ${REPO_URL_DEB} ${RELEASE}" | $SUDO tee /etc/apt/sources.list.d/nordvpn.list
         $SUDO apt-get $install_opts update
-        $SUDO apt-get $install_opts install nordvpn
+        $SUDO apt-get $install_opts install nordvpn -y
         exit
     fi
 }
@@ -128,7 +128,7 @@ install_yum() {
 
         $SUDO rpm -v --import "${PUB_KEY}"
         $SUDO yum-config-manager --add-repo "${repo}"
-        $SUDO yum $install_opts install nordvpn
+        $SUDO yum $install_opts install nordvpn -y
         exit
     fi
 }
@@ -147,7 +147,7 @@ install_dnf() {
 
         $SUDO rpm -v --import "${PUB_KEY}"
         $SUDO dnf config-manager --add-repo "${repo}"
-        $SUDO dnf $install_opts install nordvpn
+        $SUDO dnf $install_opts install nordvpn -y
         exit
     fi
 }
@@ -169,7 +169,7 @@ install_zypper() {
         else 
             $SUDO zypper addrepo -g -f "${REPO_URL_RPM}/${ARCH}" nordvpn
         fi
-        $SUDO zypper $install_opts install nordvpn
+        $SUDO zypper $install_opts install nordvpn -y
         exit
     fi
 }

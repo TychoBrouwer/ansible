@@ -18,7 +18,25 @@
         name: "*"
         state: latest
 
+    - name: Ensure epel release is installed (RedHat)
+      ansible.builtin.package:
+        name: epel-release
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure required packages are installed
+      ansible.builtin.package:
+        name:
+          - python3
+          - python3-pip
+        state: present
+
   tasks:
+    - name: Ensure passlib python library is installed
+      ansible.builtin.pip:
+        name: passlib
+        state: present
+
     - name: Ensure NordVPN installer is present on remote
       ansible.builtin.copy:
         src: ./nordvpn-install.sh
@@ -26,24 +44,56 @@
         mode: "0775"
 
     - name: Ensure NordVPN is installed
-      ansible.builtin.command: /root/nordvpn-install.sh
+      block:
+        - name: Try using NordVPN
+          ansible.builtin.command: nordvpn --version
+          register: nordvpn_status
+          changed_when: false
 
-    # Setup NordVPN at startup and ensure is started
+      rescue:
+        - name: No NordVPN, run install script
+          ansible.builtin.command: /root/nordvpn-install.sh
+          failed_when: false
 
+    # - name: Ensure logged into NordVPN
+    #   ansible.builtin.command: "nordvpn login {{ nordvpn_token }}"
+    #   changed_when: false
+
+    # - name: Ensure NordVPN daemon is started and enabled
+    #   ansible.builtin.service:
+    #     name: nordvpnd
+    #     status: started
+    #     enabled: true
+
+    # - name: Ensure NordVPN auto connect is on
+    #   ansible.builtin.command: nordvpn set autoconnect enabled Netherlands
+    #   changed_when: false
+    
     - name: Ensure share group exists
       ansible.builtin.group:
         name: "{{ share_group }}"
         gid: 3500
         state: present
 
+    - name: Ensure share user group exists
+      ansible.builtin.group:
+        name: "{{ torrentuser_name }}"
+        gid: 3501
+        state: present
+
     - name: Ensure share user exists
       ansible.builtin.user:
-        name: "{{ shareuser_name }}"
-        group: "{{ shareuser_name }}"
+        name: "{{ torrentuser_name }}"
+        group: "{{ torrentuser_name }}"
         groups: "{{ share_group }}"
         uid: 1000
-        password: "{{ shareuser_password | password_hash(hashtype='sha512', salt=shareuser_salt) }}"
+        password: "{{ torrentuser_password | password_hash(hashtype='sha512', salt=torrentuser_salt) }}"
         state: present
+
+    - name: Add root to nordvpn group
+      ansible.builtin.user:
+        name: root
+        groups: nordvpn
 
     - name: Ensure share folder exists
       ansible.builtin.file:
@@ -55,3 +105,38 @@
       ansible.builtin.package:
         name: qbittorrent-nox
         state: present
+    
+    - name: Ensure qbittorrent config folder is present
+      ansible.builtin.file:
+        path: "/home/{{ torrentuser_name }}/.config/qBittorrent"
+        state: directory
+
+    - name: Ensure qbittorrent config file is on remote
+      ansible.builtin.copy:
+        src: ./qbittorrent.conf
+        dest: "/home/{{ torrentuser_name }}/.config/qBittorrent/qBittorrent.conf"
+        mode: "0664"
+    
+    - name: Ensure torrent download path is set
+      ansible.builtin.command: qbittorrent-nox --save-path=/share/video-share
+
+    - name: Ensure qbittorrent service file is on remote (systemd)
+      ansible.builtin.copy:
+        src: ./qbittorrent.service
+        dest: /etc/systemd/system/qbittorrent.service
+        mode: "0664"
+      when: not ansible_distribution == "CentOS"
+
+    - name: Ensure qbittorrent service file is on remote (sysvinit)
+      ansible.builtin.copy:
+        src: ./qbittorrent
+        dest: /etc/init.d/qbittorrent
+        mode: "0755"
+      when: ansible_distribution == "CentOS"
+
+    # - name: Ensure qbittorrent service is enabled and started
+    #   ansible.builtin.service:
+    #     name: qbittorrent
+    #     state: started
+    #     enabled: true
+

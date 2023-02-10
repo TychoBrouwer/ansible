@@ -185,6 +185,14 @@ sections:
         icon: https://www.caci.nl/wp-content/uploads/2021/03/Osiris_Pyramid_v5.png
         url: https://tue.osiris-planapp.nl/#/
 
+      - title: Video College
+        url: https://videocollege.tue.nl/Mediasite/Showcase/5faaf306ddb04160a674b9709f79809f44
+        icon: https://mediasite.com/wp-content/themes/base-child/assets/images/Mediasite-Logo-Mark_Color@2x.png
+
+      - title: Overleaf
+        url: https://www.overleaf.com/project
+        icon: favicon
+
       - title: ANS Delft
         icon: favicon
         url: https://ans.app/
@@ -192,10 +200,6 @@ sections:
       - title: SOWISO
         icon: https://sowiso.nl/favicon.png
         url: https://cloud.sowiso.nl/
-
-      - title: Video College
-        url: https://videocollege.tue.nl/Mediasite/Showcase/5faaf306ddb04160a674b9709f79809f44
-        icon: https://mediasite.com/wp-content/themes/base-child/assets/images/Mediasite-Logo-Mark_Color@2x.png
 
       - title: Intranet
         icon: https://www.tue.nl/favicon-64.ico

@@ -1,6 +1,17 @@
 ---
 http:
+  serversTransports:
+    pve:
+      rootCAs:
+        - /root/cert-proxmox.crt
+
   routers:
+    pve:
+      entryPoints:
+        - web
+      rule: "Host (`pve.tbrouwer.com`)"
+      service: pve
+
     pihole:
       entryPoints:
         - web
@@ -28,6 +39,13 @@ http:
       service: jellyfin
 
   services:
+    pve:
+      loadBalancer:
+        serversTransport: "pve"
+        servers:
+          - url: "https://192.168.178.100:8006/"
+        # passHostHeader: true
+
     pihole:
       loadBalancer:
         servers:

@@ -68,10 +68,10 @@
         internal: false
         state: present
 
-    - name: Ensure Traefik config is present on remote
+    - name: Ensure config files are present on remote
       ansible.builtin.copy:
-        src: ./traefik.yml
-        dest: /root/traefik.yml
+        src: ./config/
+        dest: /root
         mode: "0644"
 
     - name: Ensure Traefik reverse proxy Docker container is running
@@ -80,19 +80,13 @@
         image: traefik:v2.9
         state: started
         command:
-          - --api.insecure=true # <== Enabling insecure api, NOT RECOMMENDED FOR PRODUCTION
-          - --api.dashboard=true # <== Enabling the dashboard to view services, middlewares, routers, etc.
-          # - --api.debug=true # <== Enabling additional endpoints for debugging and profiling
-          # - --log.level=DEBUG # <== Setting the level of the logs from traefik
-          - --providers.docker=true # <== Enabling docker as the provider for traefik
-          - --providers.docker.exposedbydefault=false # <== Don't expose every container to traefik
-          - --providers.docker.network=web # <== Operate on the docker network named web
-          - --providers.file.filename=/etc/traefik/dynamic.yml # <== Referring to a dynamic configuration file
-          - --entrypoints.web.address=:80 # <== Defining an entrypoint for port :80 named web
-          #- --entrypoints.web-secured.address=:443 # <== Defining an entrypoint for https on port :443 (not really needed)
-          #- --certificatesresolvers.mytlschallenge.acme.tlschallenge=true # <== Enable TLS-ALPN-01 (not really needed)
-          #- --certificatesresolvers.mytlschallenge.acme.email=you@youremail # <== Set your email (not really needed)
-          #- --certificatesresolvers.mytlschallenge.acme.storage=/letsencrypt/acme.json # <== SSL stuff we don't need.
+          - --api.insecure=true
+          - --api.dashboard=true
+          - --providers.docker=true
+          - --providers.docker.exposedbydefault=false
+          - --providers.docker.network=web
+          - --providers.file.filename=/etc/traefik/dynamic.yml
+          - --entrypoints.web.address=:80
         ports:
           - "80:80"
           - "8080:8080"
@@ -101,12 +95,9 @@
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
           - /root/traefik.yml:/etc/traefik/dynamic.yml
+          - /root/cert-proxmox.crt:/root/cert-proxmox.crt
         networks:
           - name: web
-        # labels:
-        #   traefik.enable: "true" # <== Enable traefik on itself to view dashboard and assign subdomain to$
-        #   traefik.http.routers.api.rule: "Host(`monitor.tbrouwer.com`)" # <== Setting the domain for the d$
-        #   traefik.http.routers.api.service: "api@internal" # <== Enabling the api to be a service to acce$
 
     - name: Ensure Portainer Docker volume is present
       community.docker.docker_volume:
@@ -146,22 +137,9 @@
         #   - "90:80"
         networks:
           - name: web
+        volumes:
+          - /root/dashy-conf.yml:/app/public/conf.yml
         restart_policy: always
-
-    - name: Ensure Dashy config is present on remote
-      ansible.builtin.copy:
-        src: ./dashy-conf.yml
-        dest: /root/dashy-conf.yml
-        mode: "0644"
-
-    - name: Ensure Dashy config is present on container
-      community.docker.docker_container_copy_into:
-        container: dashy
-        path: /root/dashy-conf.yml
-        container_path: /app/public/conf.yml
-        owner_id: 0
-        group_id: 0
-        mode: "0644"
 
     - name: Ensure Cloudflare DDNS Docker container is running
       community.docker.docker_container:
@@ -173,3 +151,51 @@
           PROXIED: "true"
         restart_policy: always
 
+    - name: Ensure Prometheus pve exporter Docker container is running
+      community.docker.docker_container:
+        name: prometheus-pve-exporter
+        image: prompve/prometheus-pve-exporter:latest
+        ports:
+          - "9221:9221"
+        volumes:
+          - /root/prometheus-pve-exporter-conf.yml:/etc/pve.yml
+        restart_policy: always
+
+    - name: Ensure Prometheus Docker container is running
+      community.docker.docker_container:
+        name: prometheus
+        image: prom/prometheus:latest
+        ports:
+          - "9090:9090"
+        volumes:
+          - /root/prometheus-conf.yml:/etc/prometheus/prometheus.yml
+        restart_policy: always
+
+    - name: Ensure Grafana Docker volume is present
+      community.docker.docker_volume:
+        name: grafana_data
+
+    - name: Ensure config files are present on remote
+      ansible.builtin.copy:
+        src: ./config/grafana.db
+        dest: /var/lib/docker/volumes/grafana_data/_data/grafana.db
+        mode: "0640"
+        owner: 472
+
+    - name: Ensure Grafana Docker container is running
+      community.docker.docker_container:
+        name: grafana
+        image: grafana/grafana-enterprise:latest
+        # ports:
+        #   - "3000:3000"
+        networks:
+          - name: web
+        labels:
+          traefik.enable: "true"
+          traefik.http.routers.grafana.rule: "Host(`grafana.tbrouwer.com`)"
+          traefik.http.routers.grafana.entrypoints: "web"
+          traefik.http.services.grafana.loadbalancer.server.port: "3000"
+        volumes:
+          - /root/grafana.ini:/etc/grafana/grafana.ini
+          - grafana_data:/var/lib/grafana
+        restart_policy: always

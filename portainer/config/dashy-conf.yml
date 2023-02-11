@@ -81,22 +81,27 @@ sections:
     items:
       - title: Proxmox VE
         icon: hl-proxmox
-        url: https://pve.home:8006/
+        url: https://pve.tbrouwer.com/
         statusCheck: true
         statusCheckUrl: https://192.168.178.100:8006
         statusCheckAllowInsecure: true
+
+      - title: Grafana
+        icon: hl-grafana
+        url: https://grafana.tbrouwer.com/
+        statusCheck: true
 
       - title: Pi-Hole
         icon: hl-pihole-unbound
         url: https://pihole.tbrouwer.com/
         statusCheck: true
-        statusCheckUrl: http://192.168.178.101/admin
+        # statusCheckUrl: http://192.168.178.101/admin
 
       - title: Wireguard
         icon: hl-wireguard
         url: https://wireguard.tbrouwer.com/
         statusCheck: true
-        statusCheckUrl: http://192.168.178.102:10086
+        # statusCheckUrl: http://192.168.178.102:10086
 
       - title: Portainer
         icon: hl-portainer
@@ -107,7 +112,7 @@ sections:
         url: https://jellyfin.tbrouwer.com/web/index.html#!/home.html
         icon: hl-jellyfin
         statusCheck: true
-        statusCheckUrl: http://192.168.178.111:8096
+        # statusCheckUrl: http://192.168.178.111:8096
 
       - title: Traefik
         url: http://traefik.home:8080/
@@ -119,7 +124,7 @@ sections:
         url: https://torrent.tbrouwer.com/
         icon: hl-qbittorrent
         statusCheck: true
-        statusCheckUrl: http://192.168.178.105:8080
+        # statusCheckUrl: http://192.168.178.105:8080
 
       - title: FritzBox
         url: http://192.168.178.1/

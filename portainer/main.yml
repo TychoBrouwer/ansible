@@ -87,6 +87,10 @@
           - --providers.docker.network=web
           - --providers.file.filename=/etc/traefik/dynamic.yml
           - --entrypoints.web.address=:80
+          - --accessLog.filePath=/root/access.log
+          - --accessLog.bufferingSize=100
+          - --metrics.prometheus=true
+          - --metrics.prometheus.buckets=0.1,0.3,1.2,5.0
         ports:
           - "80:80"
           - "8080:8080"
@@ -175,11 +179,12 @@
       community.docker.docker_volume:
         name: grafana_data
 
-    - name: Ensure config files are present on remote
+    # scp root@192.168.178.103:/var/lib/docker/volumes/grafana_data/_data/grafana.db .\Desktop\
+    - name: Ensure Grafana database are present on remote
       ansible.builtin.copy:
         src: ./config/grafana.db
         dest: /var/lib/docker/volumes/grafana_data/_data/grafana.db
-        mode: "0640"
+        mode: "0777"
         owner: 472
 
     - name: Ensure Grafana Docker container is running

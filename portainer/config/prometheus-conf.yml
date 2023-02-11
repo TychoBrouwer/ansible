@@ -17,3 +17,7 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: 192.168.178.103:9221  # PVE exporter.
+  - job_name: 'traefik'
+    static_configs:
+      - targets:
+        - 192.168.178.103:8080

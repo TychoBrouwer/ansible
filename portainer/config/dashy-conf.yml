@@ -239,3 +239,7 @@ sections:
       - title: Font Awesome
         url: https://fontawesome.com/search
         icon: hl-fontawesome
+
+      - title: Windows Blog
+        url: https://blogs.windows.com/windows-insider/
+        icon: favicon

@@ -1,6 +1,6 @@
 ---
 - name: Initiate server
-  hosts: torrent
+  hosts: ac_controller
 
   vars_files:
     - vars.yml
@@ -34,7 +34,7 @@
           - python3-pip
           - openssh-server
           - net-tools
-        state: present
+        state: presenthttp://
 
     - name: Ensure SSH password authentication is disabled
       ansible.builtin.lineinfile:

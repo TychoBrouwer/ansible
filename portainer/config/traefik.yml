@@ -1,4 +1,19 @@
 ---
+tcp:
+  routers:
+    accontroller:
+      entryPoints:
+        - socket
+      rule: "HostSNI(`*`)"
+      service: accontroller
+
+  services:
+    accontroller:
+      loadBalancer:
+        servers:
+          - address: "192.168.178.121:2083"
+        # passHostHeader: true
+
 http:
   serversTransports:
     pve:
@@ -38,6 +53,12 @@ http:
       rule: "Host(`jellyfin.tbrouwer.com`)"
       service: jellyfin
 
+    accontroller:
+      entryPoints:
+        - web
+      rule: "Host(`accontroller.tbrouwer.com`)"
+      service: accontroller
+
   services:
     pve:
       loadBalancer:
@@ -68,6 +89,12 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.178.111:8096/"
+        # passHostHeader: true
+
+    accontroller:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.178.121:5000/"
         # passHostHeader: true
 
   middlewares:

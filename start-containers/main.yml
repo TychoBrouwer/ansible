@@ -27,6 +27,7 @@
         - 105
         - 111
         - 112
+        - 121
 
     - name: Ensure containers have an addressed ip
       ansible.builtin.command: "pct exec {{ item }} dhclient"
@@ -38,6 +39,7 @@
         - 105
         - 111
         - 112
+        - 121
       changed_when: false
 
     - name: Ensure wg-dashboard is running
@@ -48,6 +50,7 @@
   hosts:
     - infrastructure
     - entertainment
+    - projects
 
   tasks:
     - name: Update cache if needed (Debian)

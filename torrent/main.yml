@@ -18,9 +18,11 @@
         name: "*"
         state: latest
 
-    - name: Ensure unzip is installed
+    - name: Ensure openvpn is installed
       ansible.builtin.package:
-        name: unzip
+        name:
+          # - unzip
+          - openvpn
         state: present
 
   tasks:
@@ -44,11 +46,6 @@
         uid: 1000
         password: "{{ torrentuser_password | password_hash(hashtype='sha512', salt=torrentuser_salt) }}"
         state: present
-
-    - name: Add root to nordvpn group
-      ansible.builtin.user:
-        name: root
-        groups: nordvpn
 
     - name: Ensure share folder exists
       ansible.builtin.file:
@@ -101,17 +98,38 @@
         mode: "0755"
       when: ansible_distribution == "CentOS"
 
-    - name: Download and extract qbit matUI
-      ansible.builtin.unarchive:
-        src: "https://github.com/bill-ahmed/qbit-matUI/releases/download/v{{ qbit_matUI_version }}/qbit-matUI_Unix_{{ qbit_matUI_version }}.zip"
-        dest: "/home/{{ torrentuser_name }}"
-        remote_src: true
-        owner: "{{ torrentuser_name }}"
-        group: "{{ torrentuser_name }}"
+    - name: Clone qBittorrent theme git repo
+      ansible.builtin.git:
+        repo: https://github.com/repslet/nightwalker.git
+        dest: "/home/{{ torrentuser_name }}/nightwalker"
+        force: yes
 
-    - name: Ensure qbittorrent service is enabled and started
+    - name: Ensure NordVPN auth file is present on remore
+      ansible.builtin.copy:
+        src: ./auth.txt
+        dest: /etc/openvpn/auth.txt
+        mode: "0644"
+
+    - name: Ensure NordVPN connection file is present on remore
+      ansible.builtin.copy:
+        src: ./nl986.conf
+        dest: /etc/openvpn/nl986.conf
+        mode: "0644"
+
+    - name: Ensure openvpn config is present on remore
+      ansible.builtin.copy:
+        src: ./openvpn
+        dest: /etc/default/openvpn
+        mode: "0644"
+
+    - name: Ensure openvpn service is enabled and started
       ansible.builtin.service:
-        name: qbittorrent
+        name: openvpn
         state: started
         enabled: true
 
+    - name: Ensure qbittorrent service is enabled and reloaded
+      ansible.builtin.service:
+        name: qbittorrent
+        state: reloaded
+        enabled: true

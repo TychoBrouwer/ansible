@@ -187,7 +187,7 @@
       ansible.builtin.copy:
         src: ./config/grafana.db
         dest: /var/lib/docker/volumes/grafana_data/_data/grafana.db
-        mode: "0640"
+        mode: "0660"
         owner: 472
 
     - name: Ensure Grafana Docker container is running

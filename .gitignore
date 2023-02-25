@@ -4,3 +4,4 @@ qbittorrent.conf
 prometheus-pve-exporter-conf.yml
 grafana.ini
 cert-proxmox.crt
+auth.txt

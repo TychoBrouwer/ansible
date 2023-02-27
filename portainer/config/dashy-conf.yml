@@ -81,6 +81,10 @@ sections:
         statusCheckUrl: https://192.168.178.100:8006
         statusCheckAllowInsecure: true
 
+      - title: Portfolio
+        url: https://www.tbrouwer.com/
+        icon: fas fa-globe
+
       - title: Grafana
         icon: hl-grafana
         url: https://grafana.tbrouwer.com/

@@ -4,4 +4,6 @@ qbittorrent.conf
 prometheus-pve-exporter-conf.yml
 grafana.ini
 cert-proxmox.crt
+cert-cloudflare-origin.pem
+cert-cloudflare-origin.key
 auth.txt

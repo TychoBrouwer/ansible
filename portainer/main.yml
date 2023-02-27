@@ -24,10 +24,35 @@
           - ca-certificates
           - curl
           - gnupg
-          - git
+          - ufw
         state: present
 
   tasks:
+    - name: Ensure UFW rule for private CIDR block is present
+      ansible.builtin.command: ufw allow from 10.0.0.0/8
+      register: ufw_cidr_a
+      changed_when: "'Rule added' in ufw_cidr_a.stdout"
+
+    - name: Ensure UFW rule for private CIDR block is present
+      ansible.builtin.command: ufw allow from 172.16.0.0/12
+      register: ufw_cidr_b
+      changed_when: "'Rule added' in ufw_cidr_b.stdout"
+
+    - name: Ensure UFW rule for private CIDR block is present
+      ansible.builtin.command: ufw allow from 192.168.0.0/16
+      register: ufw_cidr_c
+      changed_when: "'Rule added' in ufw_cidr_c.stdout"
+
+    - name: Ensure UFW rule for web is present
+      ansible.builtin.command: ufw allow proto tcp to any port 80
+      register: ufw_web
+      changed_when: "'Rule added' in ufw_web.stdout"
+
+    - name: Ensure UFW is enabled
+      ansible.builtin.command: ufw --force enable
+      register: ufw_enable
+      changed_when: "'active and enabled' not in ufw_enable.stdout"
+
     - name: Ensure docker GPG signing key is installed (Debian)
       ansible.builtin.apt_key:
         url: "{{ docker_ce_deb_gpg }}"
@@ -55,6 +80,12 @@
           - docker-ce-cli
           - containerd.io
         state: present
+
+    - name: Ensure docker respects UFW rules
+      ansible.builtin.copy:
+        src: ./config/default-docker
+        dest: /etc/default/docker
+        mode: "0644"
 
     - name: Ensure docker service is started and enabled
       ansible.builtin.service:
@@ -97,7 +128,6 @@
         ports:
           - "80:80"
           - "8080:8080"
-          - "443:443"
         restart_policy: always
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
@@ -116,8 +146,8 @@
         image: portainer/portainer-ce
         state: started
         # ports:
-          # - "8000:8000"
-          # - "9000:9000"
+        #   - "8000:8000"
+        #   - "9000:9000"
         networks:
           - name: web
         labels:

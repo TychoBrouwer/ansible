@@ -3,11 +3,6 @@
 pageInfo:
   title: Dashboard
   description: 192.168.178.103:8080 | portainer.tbrouwer.com
-  # navLinks:
-  # - title: GitHub
-  #   path: https://github.com/Lissy93/dashy
-  # - title: Documentation
-  #   path: https://dashy.to/docs
 
 # Optional app settings and configuration
 appConfig:
@@ -95,13 +90,11 @@ sections:
         icon: hl-pihole-unbound
         url: https://pihole.tbrouwer.com/
         statusCheck: true
-        # statusCheckUrl: http://192.168.178.101/admin
 
       - title: Wireguard
         icon: hl-wireguard
         url: https://wireguard.tbrouwer.com/
         statusCheck: true
-        # statusCheckUrl: http://192.168.178.102:10086
 
       - title: Portainer
         icon: hl-portainer
@@ -112,7 +105,6 @@ sections:
         url: https://jellyfin.tbrouwer.com/web/index.html#!/home.html
         icon: hl-jellyfin
         statusCheck: true
-        # statusCheckUrl: http://192.168.178.111:8096
 
       - title: Traefik
         url: http://traefik.home:8080/
@@ -124,7 +116,6 @@ sections:
         url: https://torrent.tbrouwer.com/
         icon: hl-qbittorrent
         statusCheck: true
-        # statusCheckUrl: http://192.168.178.105:8080
 
       - title: FritzBox
         url: http://192.168.178.1/

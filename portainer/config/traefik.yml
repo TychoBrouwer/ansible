@@ -32,6 +32,12 @@ http:
       rule: "Host(`torrent.tbrouwer.com`)"
       service: torrent
 
+    website:
+      entryPoints:
+        - web
+      rule: "Host(`www.tbrouwer.com`)"
+      service: website
+
     jellyfin:
       entryPoints:
         - web
@@ -68,6 +74,12 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.178.105:8080/"
+        # passHostHeader: true
+
+    website:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.178.106:80/"
         # passHostHeader: true
 
     jellyfin:

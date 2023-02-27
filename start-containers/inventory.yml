@@ -16,6 +16,8 @@ all:
           ansible_host: 192.168.178.104
         torrent:
           ansible_host: 192.168.178.105
+        website:
+          ansible_host: 192.168.178.106
     entertainment:
       hosts:
         jellyfin:

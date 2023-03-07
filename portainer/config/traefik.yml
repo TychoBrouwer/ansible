@@ -15,6 +15,12 @@ http:
     pihole:
       entryPoints:
         - web
+      rule: "PathPrefix(`/admin`) && Host (`pihole.tbrouwer.com`)"
+      service: pihole
+
+    pihole_path:
+      entryPoints:
+        - web
       rule: "Host (`pihole.tbrouwer.com`)"
       middlewares:
         - "addprefix-pihole"
@@ -32,10 +38,18 @@ http:
       rule: "Host(`torrent.tbrouwer.com`)"
       service: torrent
 
-    website:
+    www-website:
       entryPoints:
         - web
       rule: "Host(`www.tbrouwer.com`)"
+      service: website
+
+    website:
+      entryPoints:
+        - web
+      rule: "Host(`tbrouwer.com`)"
+      middlewares:
+        - "www-redirect"
       service: website
 
     jellyfin:
@@ -98,3 +112,8 @@ http:
     addprefix-pihole:
       addPrefix:
         prefix: "/admin"
+
+    www-redirect:
+      redirectRegex:
+        regex: "https://tbrouwer.com/*"
+        replacement: "https://www.tbrouwer.com/*"

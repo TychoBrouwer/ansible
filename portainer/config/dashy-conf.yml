@@ -11,6 +11,7 @@ appConfig:
   hideComponents:
     hideSettings: true
   preventWriteToDisk: true
+  statusCheckInterval: 20
   disableConfiguration: true
   webSearch:
     searchEngine: google
@@ -80,6 +81,12 @@ sections:
         statusCheck: true
         statusCheckUrl: https://192.168.178.100:8006
         statusCheckAllowInsecure: true
+
+      - title: Passbolt
+        icon: https://passbolt.tbrouwer.com/favicon_228.png
+        url: https://passbolt.tbrouwer.com
+        statusCheck: true
+        statusCheckAcceptCodes: 401
 
       - title: Portfolio
         url: https://www.tbrouwer.com/

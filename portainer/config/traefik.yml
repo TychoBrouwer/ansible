@@ -105,7 +105,7 @@ http:
     accontroller:
       loadBalancer:
         servers:
-          - url: "http://192.168.178.121:5000/"
+          - url: "http://192.168.178.121:5001/"
         # passHostHeader: true
 
   middlewares:
